@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Netlify Functions for ProjectPilot AI",
   "dependencies": {
-    "@google/generative-ai": "^0.21.0"
+    "@google/generative-ai": "^0.21.0",
+    "lemma-sdk": "^0.6.1"
   }
 }
