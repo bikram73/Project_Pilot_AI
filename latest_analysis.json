@@ -1,180 +1,169 @@
 {
-  "projectTitle": "Project Analysis",
-  "projectSummary": "Source: manual. Project Alpha (#project-alpha) is in a tight late-stage phase where backend, UI, and QA work are colliding on a near-term deployment. john_dev has marked the API endpoints ready for testing and published docs to /wiki/api-docs; mary_ui is integrating those docs into the UI today; alex_qa surfaced 5 bugs in the login flow (logged in Jira at High priority), with password validation flagged as the most critical. sarah_pm has called a 2pm team meeting to discuss deployment blockers. The critical path is fixing the login-flow bugs (especially password validation) and Mary finishing her today's UI integration before a deployment decision is made.",
-  "estimatedCompletion": "TBD",
+  "projectTitle": "Sprint 12 Daily Standup & Deployment",
+  "projectSummary": "This project tracks the final tasks of Sprint 12, focusing on user authentication, database migration, frontend components, and testing environment setup. The team is currently working towards a production deployment scheduled for Friday, but faces critical blockers including missing API documentation and a down staging server.",
+  "estimatedCompletion": "Friday (Sprint 12 Deployment)",
   "aiConfidenceOverall": 95,
-  "blockedTasksCount": 0,
-  "dependenciesCount": 0,
+  "blockedTasksCount": 2,
+  "dependenciesCount": 2,
   "objectives": [
-    "Ship Project Alpha's API endpoints through testing into deployment.",
-    "Resolve the 5 login-flow bugs Alex surfaced (high priority in Jira) before deployment, with password validation as the lead fix.",
-    "Land Mary's UI integration of the new API documentation today.",
-    "Convene the 2pm team meeting to resolve Project Alpha deployment blockers.",
-    "Reach a deployment go/no-go decision once bugs and UI integration converge."
+    "Complete Sprint 12 development tasks",
+    "Resolve critical bugs in the testing environment",
+    "Deploy the verified build to production by Friday"
   ],
-  "keyDeliverables": [],
+  "keyDeliverables": [
+    "User authentication and password reset functionality",
+    "Completed database migration",
+    "Frontend components integrated with API",
+    "Stable staging environment and verified deployment"
+  ],
   "tasks": [
     {
       "id": "task-1",
-      "name": "Publish API documentation to the wiki (/wiki/api-docs)",
-      "owner": "john_dev",
-      "deadline": "TBD",
-      "priority": "Medium",
-      "category": "General",
-      "status": "Done",
-      "sourceEvidence": "Generated from project analysis",
-      "confidence": 95
+      "name": "Implement password reset",
+      "owner": "Sarah",
+      "deadline": "Friday",
+      "priority": "High",
+      "category": "Development",
+      "status": "In Progress",
+      "sourceEvidence": "Sarah: Completed user authentication, working on password reset",
+      "confidence": 95,
+      "dependencies": [],
+      "missingInfo": "Specific deadline or estimate for password reset completion",
+      "suggestedAction": "Confirm with Sarah if password reset will be ready for Friday's deployment."
     },
     {
       "id": "task-2",
-      "name": "Support testing of the new API endpoints (hand-off to QA)",
-      "owner": "john_dev",
-      "deadline": "TBD",
+      "name": "Complete database migration",
+      "owner": "Mike",
+      "deadline": "Today",
       "priority": "High",
-      "category": "General",
-      "status": "Todo",
-      "sourceEvidence": "Generated from project analysis",
-      "confidence": 95
+      "category": "Database",
+      "status": "In Progress",
+      "sourceEvidence": "Mike: Database migration running, will finish today",
+      "confidence": 98,
+      "dependencies": [],
+      "missingInfo": "None",
+      "suggestedAction": "Verify migration completion at the end of the day."
     },
     {
       "id": "task-3",
-      "name": "Log the 5 login-flow bugs in Jira with High priority",
-      "owner": "alex_qa",
-      "deadline": "TBD",
+      "name": "Complete frontend components",
+      "owner": "Lisa",
+      "deadline": "Friday",
       "priority": "High",
-      "category": "General",
-      "status": "Done",
-      "sourceEvidence": "Generated from project analysis",
-      "confidence": 95
+      "category": "Design",
+      "status": "In Progress",
+      "sourceEvidence": "Lisa: Frontend components 80% done, blocked on API specs",
+      "confidence": 95,
+      "dependencies": [
+        "API specifications"
+      ],
+      "missingInfo": "Owner of the API specifications",
+      "suggestedAction": "Identify and assign a backend developer to provide the API specifications to Lisa immediately."
     },
     {
       "id": "task-4",
-      "name": "Fix critical password validation issue in the login flow (highest of the 5 reported bugs)",
-      "owner": "alex_qa",
-      "deadline": "TBD",
-      "priority": "Critical",
-      "category": "General",
+      "name": "Resolve 3 critical bugs in testing environment",
+      "owner": "Unassigned",
+      "deadline": "Friday",
+      "priority": "High",
+      "category": "Development",
       "status": "Todo",
-      "sourceEvidence": "Generated from project analysis",
-      "confidence": 95
+      "sourceEvidence": "Alex: Testing environment setup, found 3 critical bugs",
+      "confidence": 90,
+      "dependencies": [
+        "Testing environment setup"
+      ],
+      "missingInfo": "Assignee for fixing the 3 critical bugs",
+      "suggestedAction": "Triage the bugs with Alex and assign them to Sarah or Mike for immediate resolution."
     },
     {
       "id": "task-5",
-      "name": "Fix the remaining 4 bugs in the login flow",
-      "owner": "john_dev",
-      "deadline": "TBD",
+      "name": "Deploy to production",
+      "owner": "Unassigned",
+      "deadline": "Friday",
       "priority": "High",
-      "category": "General",
-      "status": "Todo",
-      "sourceEvidence": "Generated from project analysis",
-      "confidence": 95
-    },
-    {
-      "id": "task-6",
-      "name": "Integrate the API documentation (from /wiki/api-docs) into the UI today",
-      "owner": "mary_ui",
-      "deadline": "TBD",
-      "priority": "High",
-      "category": "General",
-      "status": "Todo",
-      "sourceEvidence": "Generated from project analysis",
-      "confidence": 95
-    },
-    {
-      "id": "task-7",
-      "name": "Hold the 2pm team meeting to review Project Alpha deployment blockers",
-      "owner": "sarah_pm",
-      "deadline": "TBD",
-      "priority": "High",
-      "category": "General",
-      "status": "Todo",
-      "sourceEvidence": "Generated from project analysis",
-      "confidence": 95
-    },
-    {
-      "id": "task-8",
-      "name": "Decide a deployment go/no-go once bug fixes and UI integration land",
-      "owner": "sarah_pm",
-      "deadline": "TBD",
-      "priority": "High",
-      "category": "General",
-      "status": "Todo",
-      "sourceEvidence": "Generated from project analysis",
-      "confidence": 95
+      "category": "Operations",
+      "status": "Pending",
+      "sourceEvidence": "Next: Deploy to production Friday",
+      "confidence": 95,
+      "dependencies": [
+        "Database migration",
+        "Frontend components",
+        "Bug fixes",
+        "Staging server recovery"
+      ],
+      "missingInfo": "Deployment owner and release plan details",
+      "suggestedAction": "Designate a release manager and draft a deployment checklist."
     }
   ],
   "risks": [
     {
       "id": "risk-1",
-      "name": "5 bugs in the login flow, with password validation flagged as the most critical",
+      "name": "Missing API Documentation",
       "severity": "High",
-      "description": "5 bugs in the login flow, with password validation flagged as the most critical",
-      "solution": "Prioritize the password validation fix immediately; have john_dev implement, alex_qa verify, and sarah_pm gate the deployment on regression of all 5 bugs in Jira before the 2pm meeting decisions are finalized.",
-      "confidence": 90
+      "description": "Lisa is blocked on completing frontend components (currently at 80%) due to missing API specifications.",
+      "solution": "Prioritize API documentation delivery and assign a backend developer to share the specs with Lisa immediately.",
+      "confidence": 95
     },
     {
       "id": "risk-2",
-      "name": "Deployment blockers for Project Alpha are unresolved and only scheduled for review at 2pm",
-      "severity": "Medium",
-      "description": "Deployment blockers for Project Alpha are unresolved and only scheduled for review at 2pm",
-      "solution": "sarah_pm should circulate a blocker list to the team before the 2pm meeting so the discussion is concrete; pre-agree a minimum-release cut so a single unresolved blocker does not slip the entire deployment.",
-      "confidence": 90
+      "name": "Staging Server Down",
+      "severity": "Critical",
+      "description": "The staging server is currently down, which prevents proper integration testing before Friday's production deployment.",
+      "solution": "Assign DevOps or infrastructure support to investigate and restore the staging server immediately.",
+      "confidence": 98
     },
     {
       "id": "risk-3",
-      "name": "UI integration of API docs happening today in parallel with active login-flow bug fixes creates a merge/rework risk",
-      "severity": "Medium",
-      "description": "UI integration of API docs happening today in parallel with active login-flow bug fixes creates a merge/rework risk",
-      "solution": "mary_ui should integrate against the stable wiki API doc and freeze the integration surface for the day; if bug fixes require contract changes, john_dev must version the endpoints and notify mary_ui before she merges.",
-      "confidence": 90
-    },
-    {
-      "id": "risk-4",
-      "name": "No explicit test plan or testing owner named for the new API endpoints despite them being 'ready for testing'",
-      "severity": "Low",
-      "description": "No explicit test plan or testing owner named for the new API endpoints despite them being 'ready for testing'",
-      "solution": "Assign a testing owner at the 2pm meeting (likely alex_qa) with a defined test checklist for the API endpoints so the 'ready for testing' status moves to verified before deployment.",
+      "name": "Unresolved Critical Bugs",
+      "severity": "High",
+      "description": "Alex found 3 critical bugs in the testing environment that could delay the Friday deployment if not resolved.",
+      "solution": "Triage the bugs immediately and assign them to Sarah or Mike for rapid resolution.",
       "confidence": 90
     }
   ],
   "recommendations": [
     {
       "id": "rec-1",
-      "title": "Treat the password validation bug as the highest-priority fix — pair john_dev and alex_qa on it today so regression can be verified before the 2pm meeting.",
-      "description": "Treat the password validation bug as the highest-priority fix — pair john_dev and alex_qa on it today so regression can be verified before the 2pm meeting.",
-      "icon": "lightbulb",
-      "confidence": 90
+      "title": "Unblock Frontend Development",
+      "description": "Immediately assign a backend resource to document and deliver the API specifications to Lisa.",
+      "icon": "priority_high",
+      "confidence": 95
     },
     {
       "id": "rec-2",
-      "title": "john_dev should freeze the API contract going into Mary's day-of integration, or version any breaking change and notify Mary before she merges, so her UI work is not undone by backend fixes.",
-      "description": "john_dev should freeze the API contract going into Mary's day-of integration, or version any breaking change and notify Mary before she merges, so her UI work is not undone by backend fixes.",
-      "icon": "lightbulb",
-      "confidence": 90
+      "title": "Restore Staging Server",
+      "description": "Prioritize restoring the staging server to ensure deployment verification can occur before Friday.",
+      "icon": "build",
+      "confidence": 98
     },
     {
       "id": "rec-3",
-      "title": "sarah_pm circulates a blocker list ahead of the 2pm meeting so the discussion is concrete and ends with named owners and dates for each blocker.",
-      "description": "sarah_pm circulates a blocker list ahead of the 2pm meeting so the discussion is concrete and ends with named owners and dates for each blocker.",
-      "icon": "lightbulb",
-      "confidence": 90
-    },
-    {
-      "id": "rec-4",
-      "title": "Pre-define a minimum-release cut for Project Alpha at the meeting so a single unresolved item does not slip the entire deployment.",
-      "description": "Pre-define a minimum-release cut for Project Alpha at the meeting so a single unresolved item does not slip the entire deployment.",
-      "icon": "lightbulb",
-      "confidence": 90
-    },
-    {
-      "id": "rec-5",
-      "title": "Assign a dedicated testing owner for the new API endpoints (likely alex_qa) at the 2pm meeting and gate deployment on a completed test pass for those endpoints.",
-      "description": "Assign a dedicated testing owner for the new API endpoints (likely alex_qa) at the 2pm meeting and gate deployment on a completed test pass for those endpoints.",
-      "icon": "lightbulb",
+      "title": "Triage Critical Bugs",
+      "description": "Conduct an immediate triage session for the 3 critical bugs found by Alex to assign fixes.",
+      "icon": "task_alt",
       "confidence": 90
     }
   ],
-  "missingInfoAlerts": [],
-  "_analysisMode": "lemma",
-  "_deploymentMode": "development"
+  "missingInfoAlerts": [
+    {
+      "id": "alert-1",
+      "targetType": "task",
+      "targetName": "Complete frontend components",
+      "severity": "Warning",
+      "description": "API specifications are missing, blocking Lisa from completing frontend components.",
+      "suggestedAction": "Identify who owns the API design and request immediate documentation."
+    },
+    {
+      "id": "alert-2",
+      "targetType": "project",
+      "targetName": "Deploy to production",
+      "severity": "Warning",
+      "description": "Staging server is down, risking the Friday production deployment.",
+      "suggestedAction": "Engage DevOps to bring the staging environment back online."
+    }
+  ],
+  "_analysisMode": "gemini",
+  "_deploymentMode": "fallback"
 }
