@@ -1,9 +1,6 @@
 # 🚀 ProjectPilot AI
 
 Transform your unstructured meeting notes, transcripts, requirements documents, and team communications into structured, actionable project dashboards in seconds. Powered by **Lemma Workflow Engine** with intelligent document parsing and real-time analysis, ProjectPilot AI extracts tasks, identifies owners, maps deadlines, flags risks, and provides strategic recommendations automatically.
-
-**🌐 Now deployed on Netlify** with serverless functions for optimal performance and scalability.
-
 ---
 
 ### 🎯 Streamlined Input Interface
@@ -12,13 +9,14 @@ Transform your unstructured meeting notes, transcripts, requirements documents, 
 * **Enhanced Sample Data:** 6 realistic project scenarios for instant testing
 * **Removed Complexity:** Eliminated experimental features (URL import, voice recording, image analysis) for better user experience
 
-### 🔄 Robust Lemma Integration with Gemini Fallback
-* **Production-Ready Workflow:** Full end-to-end Lemma workflow execution with polling
-* **Intelligent Fallback System:** Automatic Gemini AI fallback when Lemma is unavailable
-* **Session Management:** Automatic token refresh and authentication handling
-* **Windows Compatibility:** SSL verification bypass for Windows development environments
-* **Error Recovery:** Comprehensive error handling and graceful service degradation
-* **Dual-Mode Operation:** Seamlessly switches between Lemma and Gemini analysis engines
+### 🔄 Intelligent Analysis Engine System
+* **Primary Engine (Lemma):** Enterprise-grade workflow execution with advanced AI processing
+* **Fallback Engine (Gemini):** Reliable backup analysis when Lemma is unavailable  
+* **Smart Priority Display:** Clear visual indicators showing analysis mode priority level
+* **Seamless Operation:** Automatic engine selection without user intervention
+* **Session Management:** Robust token handling and authentication
+* **Enhanced Error Recovery:** Graceful degradation with detailed status reporting
+* **Cross-Platform Support:** Works on Windows, macOS, and Linux environments
 
 ---
 
@@ -42,13 +40,14 @@ ProjectPilot AI features an elegant **Deep Slate & Vibrant Blue** aesthetic with
   - Sprint Retrospectives with improvement plans
 * **Drag-and-Drop Interface:** Intuitive file upload with visual feedback
 
-### 🧠 2. Dual-Engine Analysis System
-* **Primary Engine:** Lemma's project-analyzer workflow with live agent execution
-* **Fallback Engine:** Google Gemini 1.5 Flash for offline and backup analysis
-* **Asynchronous Processing:** Fire-and-forget architecture with intelligent polling
-* **Smart Mode Detection:** Automatically selects optimal analysis engine
-* **Structured Data Extraction:** Consistently identifies tasks, objectives, risks, and recommendations regardless of engine
-* **Data Transformation:** Seamless conversion between different AI engine outputs to unified format
+### 🧠 2. Intelligent Analysis System with Priority Engine Selection
+* **High Priority Engine:** Lemma's advanced project-analyzer workflow with enterprise-grade AI
+* **Low Priority Fallback:** Google Gemini 1.5 Flash for reliable backup processing
+* **Priority Display:** Clear visual indicators showing "Premium Mode" vs "Backup Mode"
+* **Automatic Engine Selection:** Intelligent routing based on service availability
+* **Asynchronous Processing:** Fire-and-forget architecture with optimized polling
+* **Unified Data Format:** Consistent output regardless of analysis engine
+* **Enhanced Error Handling:** Detailed status reporting and graceful degradation
 
 ### 📊 3. Interactive Project Dashboard
 * **Real-Time Statistics:** Live counters for tasks, risks, deadlines, and priorities
@@ -58,57 +57,58 @@ ProjectPilot AI features an elegant **Deep Slate & Vibrant Blue** aesthetic with
 * **Progress Tracking:** Milestone visualization and completion metrics
 * **Export Capabilities:** Persistent results saved to `latest_analysis.json`
 
-### 💬 4. Dual-Mode AI Chat Assistant
-* **Primary Mode:** Lemma chat agent with project-specific context and reasoning
-* **Fallback Mode:** Google Gemini conversational AI with project data awareness  
-* **Active Mode Display:** Clear visual indicators (`● Lemma Mode Active` or `● Powered by Gemini (Fallback)`)
-* **Context-Aware Responses:** Project-specific insights and recommendations from both engines
-* **Seamless Switching:** Automatic fallback without user intervention
-* **Conversation History:** Maintains chat context across mode switches
+### 💬 4. Intelligent AI Chat Assistant with Priority System
+* **High Priority Mode:** Lemma chat agent with advanced project reasoning and context
+* **Low Priority Fallback:** Google Gemini conversational AI with project data awareness  
+* **Clear Priority Display:** Visual indicators showing "Lemma Mode Active (High Priority)" or "Gemini Fallback (Low Priority)"
+* **Context-Aware Intelligence:** Both engines provide project-specific insights and recommendations
+* **Automatic Degradation:** Seamless fallback without user interruption
+* **Conversation Continuity:** Maintains chat context across priority mode switches
 
 ---
 
 ## 🏗️ System Architecture
 
-### 🔄 Dual-Engine Analysis Flow
+### 🔄 Priority-Based Analysis Flow
 ```text
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   User Input    │    │  Express Backend │    │ Primary: Lemma  │
-│  (File/Text)    │───▶│    Proxy API     │───▶│   Workflow      │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-                                │                        │
-                                ▼                        ▼
-                       ┌──────────────────┐    ┌─────────────────┐
-                       │  Fallback Check  │    │   Success Path  │
-                       │ (If Lemma Fails) │    │   Dashboard     │
-                       └──────────────────┘    └─────────────────┘
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────────────┐
+│   User Input    │    │  Express Backend │    │ HIGH Priority: Lemma    │
+│  (File/Text)    │───▶│  Priority Router │───▶│   Advanced Workflow     │
+└─────────────────┘    └──────────────────┘    └─────────────────────────┘
+                                │                           │
+                                ▼                           ▼
+                       ┌──────────────────┐    ┌─────────────────────────┐
+                       │Priority Degrader │    │   Premium Dashboard     │
+                       │ (If Lemma Fails) │    │  (High Priority Mode)   │
+                       └──────────────────┘    └─────────────────────────┘
                                 │                        
                                 ▼                        
-                       ┌──────────────────┐              
-                       │ Gemini Fallback  │              
-                       │   Analysis API   │              
-                       └──────────────────┘              
+                       ┌──────────────────────────┐              
+                       │ LOW Priority: Gemini     │              
+                       │   Fallback Analysis      │              
+                       └──────────────────────────┘              
                                 │                        
                                 ▼                        
-                       ┌──────────────────┐              
-                       │   Dashboard      │              
-                       │ (Fallback Mode)  │              
-                       └──────────────────┘              
+                       ┌──────────────────────────┐              
+                       │   Backup Dashboard       │              
+                       │ (Low Priority Mode)      │              
+                       └──────────────────────────┘              
 ```
 
 ### 🔧 Backend Services Architecture
-* **Express Proxy Server:** Handles authentication and API routing for both Lemma and Gemini
-* **Session Management:** Automatic token refresh with Windows SSL compatibility  
-* **Intelligent Routing:** Automatically routes requests between Lemma and Gemini based on availability
-* **Fire-and-Forget Processing:** Asynchronous workflow execution with polling for Lemma
-* **Result Persistence:** Automatic saving to `latest_analysis.json` with mode tracking
+* **Express Proxy Server:** Intelligent priority routing between Lemma (high) and Gemini (low)
+* **Session Management:** Automatic token refresh with cross-platform compatibility  
+* **Priority-Based Routing:** Smart engine selection with clear degradation path
+* **Fire-and-Forget Processing:** Asynchronous workflow execution with optimized polling
+* **Result Persistence:** Automatic saving with analysis mode tracking and priority indicators
 
-### 💾 Data Flow & Processing
+### 💾 Data Flow & Priority Processing
 1. **Input Processing:** Files converted to base64, text sanitized and validated
-2. **Lemma Submission:** Data formatted for project-analyzer workflow schema
-3. **Polling Loop:** 3-second intervals checking workflow completion status
-4. **Data Transformation:** Lemma output converted to frontend-compatible format
-5. **Dashboard Rendering:** Real-time updates with interactive components
+2. **High Priority Submission:** Data formatted for Lemma project-analyzer workflow schema
+3. **Smart Polling Loop:** Optimized intervals checking workflow completion status
+4. **Priority Degradation:** Automatic fallback to Gemini if Lemma unavailable
+5. **Data Transformation:** Both engines converted to unified frontend format
+6. **Dashboard Rendering:** Real-time updates with clear priority mode indicators
 
 ---
 
@@ -331,26 +331,28 @@ lemma auth print-token    # Get new token
 ## 📖 Usage Guide
 
 ### 🎯 Quick Start
-1. **Launch Application:** Open `http://localhost:5173` 
+1. **Launch Application:** Open your deployed Netlify URL or `http://localhost:5173` for development
 2. **Choose Input Method:** 
-   - **Upload File:** Drag & drop PDF/DOCX/TXT files
+   - **Upload File:** Drag & drop PDF/DOCX/TXT files up to 25MB
    - **Paste Text:** Direct input for meeting notes or requirements
 3. **Load Sample Data:** Use the dropdown for realistic project examples
-4. **Analyze Project:** Click "Analyze Project" to process with Lemma
-5. **Review Dashboard:** Explore tasks, risks, and recommendations
+4. **Analyze Project:** Click "Analyze Project" - system prioritizes Lemma (Premium Mode)
+5. **Review Dashboard:** Explore tasks, risks, and recommendations with priority mode indicator
 
-### 📊 Dashboard Features
-- **Task Management:** View, filter, and update project tasks
-- **Risk Assessment:** Identify and track potential blockers
-- **Progress Tracking:** Monitor completion status and deadlines
-- **Interactive Filters:** Search by priority, owner, or status
-- **Export Results:** Data automatically saved to `latest_analysis.json`
+### 📊 Dashboard Priority System
+- **Premium Mode (Green Badge):** Advanced Lemma analysis with maximum accuracy
+- **Backup Mode (Amber Badge):** Reliable Gemini fallback when Lemma unavailable
+- **Task Management:** View, filter, and update project tasks regardless of analysis mode
+- **Risk Assessment:** Identify and track potential blockers with confidence levels
+- **Progress Tracking:** Monitor completion status and deadlines across all priority levels
+- **Interactive Filters:** Search by priority, owner, or status in any analysis mode
+- **Export Results:** Data automatically saved to `latest_analysis.json` with mode tracking
 
 ### 💬 AI Chat Assistant
-- **Dual Mode Operation:** Lemma chat agent or Gemini conversational AI
-- **Context Aware:** Understands your specific project data in both modes
-- **Mode Indicator:** Clear visual status (`● Lemma Mode Active` or `● Powered by Gemini (Fallback)`)
-- **Automatic Fallback:** Seamless switching when primary service unavailable
+- **Priority System:** High priority Lemma chat or low priority Gemini conversational AI
+- **Context Intelligence:** Understands your specific project data in both priority modes
+- **Priority Indicators:** Clear visual status showing current analysis priority level
+- **Automatic Degradation:** Seamless switching when high priority service unavailable
 
 ---
 
@@ -360,13 +362,13 @@ lemma auth print-token    # Get new token
 To test the Gemini fallback system:
 
 ```bash
-# Test locally with development server
+# Test priority system with development server
 npm run dev
 
-# Test with invalid Lemma token to trigger fallback
-# Temporarily set LEMMA_SESSION_TOKEN to "invalid" in Netlify environment
-# Run analysis - should automatically use Gemini fallback
-# Check dashboard for "● Powered by Gemini (Fallback)" indicator
+# Test priority degradation by setting invalid Lemma token
+# Temporarily set LEMMA_SESSION_TOKEN to "invalid" in environment
+# Run analysis - should automatically degrade to Gemini (low priority)
+# Check dashboard for amber "Backup Mode" indicator instead of green "Premium Mode"
 ```
 
 ### API Testing (Local Development)
@@ -386,9 +388,9 @@ curl -X POST http://localhost:5173/.netlify/functions/chat \
 ```
 
 ### Expected Behavior
-- **Lemma Available:** Uses Lemma workflow, shows "● Lemma Mode Active"
-- **Lemma Unavailable:** Falls back to Gemini, shows "● Powered by Gemini (Fallback)"
-- **Both Unavailable:** Shows offline mode with local parsing
+- **Lemma Available (High Priority):** Uses Lemma workflow, shows green "Premium Mode" badge
+- **Lemma Unavailable (Priority Degradation):** Falls back to Gemini, shows amber "Backup Mode" badge  
+- **Both Unavailable:** Shows offline mode with local parsing and appropriate error messaging
 
 ---
 
@@ -499,11 +501,19 @@ CMD ["npm", "start"]
 8. Open pull request
 
 ### Code Style Guidelines
-- Use TypeScript for all new code
-- Follow existing naming conventions
-- Add JSDoc comments for complex functions
-- Write tests for new features
-- Ensure responsive design compatibility
+- Use TypeScript for all new code with strict type checking
+- Follow existing naming conventions and component structure
+- Add comprehensive JSDoc comments for complex functions
+- Write tests for new features and bug fixes
+- Ensure responsive design compatibility across all screen sizes
+- Maintain consistency with existing UI/UX patterns
+
+### Testing Guidelines
+- Test both Lemma (high priority) and Gemini (low priority) analysis modes
+- Verify priority indicator displays correctly in dashboard
+- Test graceful degradation when services are unavailable
+- Ensure chat assistant works in both priority modes
+- Validate file upload and text processing functionality
 
 ---
 
@@ -516,10 +526,11 @@ CMD ["npm", "start"]
 * **Secure Authentication:** Lemma tokens managed exclusively server-side
 
 ### Privacy Commitments
-* **Zero Third-Party Tracking:** No analytics or tracking scripts
-* **GDPR Compliant:** No personal data storage or processing
-* **Open Source:** Full transparency in data handling practices
+* **Zero Third-Party Tracking:** No analytics or tracking scripts embedded
+* **GDPR Compliant:** No personal data storage or long-term processing
+* **Open Source Transparency:** Full transparency in data handling practices under MIT License
 * **User Control:** Complete control over data input and analysis results
+* **Priority-Based Processing:** Clear indicators showing which AI engine processed your data
 
 ### Security Best Practices
 * **HTTPS Required:** All production deployments use encrypted connections
@@ -532,4 +543,4 @@ CMD ["npm", "start"]
 ## 📄 License & Acknowledgments
 
 ### License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for complete details.
