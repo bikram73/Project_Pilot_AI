@@ -32,33 +32,43 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     console.log("[Express API /api/chat] Received chat message.");
 
     try {
-      // 1. Attempt Lemma Chat Agent
-      console.log("[Express API /api/chat] Attempting Lemma Chat Agent...");
-      const reply = await chatWithLemma(message, projectData, history);
-      console.log("[Express API /api/chat] Lemma Agent responded successfully.");
-      return res.json({ reply, mode: "lemma" });
+      // Try Gemini first for better reliability while Lemma chat is having issues
+      console.log("[Express API /api/chat] Using Gemini chat for reliable responses...");
+      const reply = await chatWithGemini(message, projectData, history);
+      console.log("[Express API /api/chat] Gemini conversational assistant responded successfully.");
+      return res.json({ reply, mode: "gemini" });
 
-    } catch (lemmaError: any) {
-      console.warn(
-        `[Express API /api/chat] Lemma Agent unavailable. Running Gemini chat fallback. Error: ${lemmaError.message || lemmaError}`
-      );
+    } catch (geminiError: any) {
+      console.warn(`[Express API /api/chat] Gemini chat failed: ${geminiError.message}`);
 
+      // Fallback to Lemma if Gemini fails
       try {
-        // 2. Fallback to Gemini
-        console.log("[Express API /api/chat] Activating Gemini conversational assistant...");
-        const reply = await chatWithGemini(message, projectData, history);
-        console.log("[Express API /api/chat] Gemini conversational assistant responded successfully.");
-        return res.json({ reply, mode: "gemini" });
-      } catch (geminiError: any) {
-        console.error(`[Express API /api/chat] Both Lemma and Gemini failed. Lemma: ${lemmaError.message}, Gemini: ${geminiError.message}`);
-        // Return specific error about which service failed
-        return res.status(500).json({ 
-          error: "Both chat services are unavailable", 
-          details: {
-            lemmaError: lemmaError.message || "Lemma chat service unavailable",
-            geminiError: geminiError.message || "Gemini fallback service unavailable"
-          },
-          failedServices: ["lemma", "gemini"]
+        console.log("[Express API /api/chat] Attempting Lemma Chat Agent as fallback...");
+        const reply = await chatWithLemma(message, projectData, history);
+        console.log("[Express API /api/chat] Lemma Agent responded successfully.");
+        return res.json({ reply, mode: "lemma" });
+
+      } catch (lemmaError: any) {
+        console.error(`[Express API /api/chat] Both chat services failed. Gemini: ${geminiError.message}, Lemma: ${lemmaError.message}`);
+        
+        // Return a helpful default response
+        const defaultResponse = `I'm having trouble connecting to the AI assistant right now. Here are some suggestions based on your project:
+
+**Immediate Actions:**
+- Review your highest priority tasks first
+- Check for any blocked items that need escalation  
+- Identify tasks with approaching deadlines
+
+**Common Focus Areas:**
+- Address critical risks that could impact timeline
+- Clear any dependencies blocking other team members
+- Ensure testing environments are ready for upcoming deliveries
+
+Please try your question again in a moment, or check the dashboard for detailed project insights.`;
+
+        return res.json({ 
+          reply: defaultResponse, 
+          mode: "offline"
         });
       }
     }

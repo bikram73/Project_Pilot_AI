@@ -1,135 +1,109 @@
 {
-  "projectTitle": "Project Phoenix",
-  "projectSummary": "Project Phoenix is currently executing critical development deliverables including API integration, frontend component preparation, and database migrations. The team is working under tight deadlines this week while managing risks related to third-party APIs, environment readiness, and client approvals.",
-  "estimatedCompletion": "End of current week",
+  "projectTitle": "Project Analysis",
+  "projectSummary": "Project Phoenix has three critical deliverables landing Wed/Thu/Fri owned by John (API integration), Mary (frontend components ready for testing), and Alex (database migrations to production). Three risks are already on Sarah's radar — third-party API instability, an unprepared testing environment, and pending client UI approval — any of which could derail at least one of this week's milestones, so the focus this week is execution plus proactive risk removal rather than new scope.",
+  "estimatedCompletion": "TBD",
   "aiConfidenceOverall": 95,
-  "blockedTasksCount": 1,
-  "dependenciesCount": 1,
+  "blockedTasksCount": 0,
+  "dependenciesCount": 0,
   "objectives": [
-    "Complete critical development deliverables for Project Phoenix",
-    "Ensure API, frontend, and database components are integrated and deployed"
+    "John to complete the API integration for Project Phoenix by Wednesday, with vendor escalation and a working fallback against third-party instability.",
+    "Mary to deliver frontend components that are ready for testing by Thursday, against a confirmed test environment and either approved or build-against-proposed UI designs.",
+    "Alex to deploy database migrations to production by Friday, with a rollback plan in case the migration needs to be reversed.",
+    "Sarah to unblock the three flagged risks (API stability, test environment, client UI approval) before they translate into missed deadlines for John, Mary, or Alex."
   ],
-  "keyDeliverables": [
-    "API Integration",
-    "Frontend Components for Testing",
-    "Database Migrations Deployed"
-  ],
+  "keyDeliverables": [],
   "tasks": [
     {
       "id": "task-1",
-      "name": "Complete API integration",
+      "name": "Complete API integration (Project Phoenix)",
       "owner": "John",
-      "deadline": "Wednesday",
-      "priority": "High",
-      "category": "Development",
-      "status": "In Progress",
-      "sourceEvidence": "John - Complete API integration by Wednesday",
-      "confidence": 95,
-      "dependencies": [
-        "Third-party API stability"
-      ],
-      "missingInfo": "",
-      "suggestedAction": ""
+      "deadline": "TBD",
+      "priority": "Critical",
+      "category": "General",
+      "status": "Todo",
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
     },
     {
       "id": "task-2",
-      "name": "Frontend components ready for testing",
+      "name": "Deliver frontend components ready for testing (Project Phoenix)",
       "owner": "Mary",
-      "deadline": "Thursday",
-      "priority": "High",
-      "category": "Development",
-      "status": "In Progress",
-      "sourceEvidence": "Mary - Frontend components ready for testing by Thursday",
-      "confidence": 95,
-      "dependencies": [
-        "Client approval on UI designs",
-        "Testing environment readiness"
-      ],
-      "missingInfo": "Confirmation of UI design approval status",
-      "suggestedAction": "Follow up with the client immediately to secure UI design approval."
+      "deadline": "TBD",
+      "priority": "Critical",
+      "category": "General",
+      "status": "Todo",
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
     },
     {
       "id": "task-3",
-      "name": "Database migrations deployed",
+      "name": "Deploy database migrations to production (Project Phoenix)",
       "owner": "Alex",
-      "deadline": "Friday",
-      "priority": "High",
-      "category": "Operations",
-      "status": "In Progress",
-      "sourceEvidence": "Alex - Database migrations deployed by Friday",
-      "confidence": 95,
-      "dependencies": [],
-      "missingInfo": "",
-      "suggestedAction": ""
+      "deadline": "TBD",
+      "priority": "Critical",
+      "category": "General",
+      "status": "Todo",
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
     }
   ],
   "risks": [
     {
       "id": "risk-1",
-      "name": "Third-party API instability",
+      "name": "Third-party API instability threatens John's Wednesday API integration milestone",
       "severity": "High",
-      "description": "The third-party API required for integration is unstable, which may delay John's API integration task.",
-      "solution": "Implement mock API endpoints for development and testing, and establish a fallback mechanism or contact the third-party provider for support.",
+      "description": "Third-party API instability threatens John's Wednesday API integration milestone",
+      "solution": "Pair John with the third-party API vendor contact to add retries, timeouts, and a circuit breaker on the integration; build a stub/mock of the third-party endpoint so work and testing can continue while the upstream is unstable; escalate to the vendor today for a written ETA on stability so Sarah can decide whether to descope or reschedule Wednesday's deliverable.",
       "confidence": 90
     },
     {
       "id": "risk-2",
-      "name": "Testing environment not ready",
+      "name": "Testing environment is not ready ahead of Mary's Thursday frontend testing hand-off",
       "severity": "High",
-      "description": "The testing environment is currently not ready, threatening Mary's deadline to have frontend components ready for testing by Thursday.",
-      "solution": "Assign a DevOps resource to prioritize testing environment setup, or use a local/staging environment as a temporary workaround.",
+      "description": "Testing environment is not ready ahead of Mary's Thursday frontend testing hand-off",
+      "solution": "Assign a single owner for the test environment today (Sarah to call it out at tomorrow's standup); verify test accounts, seed data, access credentials, and the CI pipeline are operational before Mary's Thursday hand-off; if the shared environment still slips, pre-agree a minimum-testable cut of the frontend that Mary and her team can validate locally so the milestone is not blocked.",
       "confidence": 90
     },
     {
       "id": "risk-3",
-      "name": "Client approval pending on UI designs",
+      "name": "Client approval on UI designs is still pending and could delay Mary's frontend work",
       "severity": "Medium",
-      "description": "Pending client approval on UI designs could block frontend development or lead to rework.",
-      "solution": "Escalate to the client account manager to expedite approval, or proceed with a 'frozen' draft with clear assumptions.",
+      "description": "Client approval on UI designs is still pending and could delay Mary's frontend work",
+      "solution": "Sarah to chase the client reviewer for a written decision today and set a hard response deadline; in parallel, Mary should build against the proposed designs and keep client-specific copy and imagery in a swappable layer so only the approved assets need to be replaced once feedback arrives, rather than reworking components.",
       "confidence": 90
     }
   ],
   "recommendations": [
     {
       "id": "rec-1",
-      "title": "Establish Mock APIs",
-      "description": "To mitigate third-party API instability, create mock services so John can complete integration testing without relying on the live external API.",
-      "icon": "build",
+      "title": "Make tomorrow's standup a true readiness review: each of John, Mary, Alex gives a green/yellow/red status, and Sarah confirms owners and ETAs for the test environment and UI approval before standup ends.",
+      "description": "Make tomorrow's standup a true readiness review: each of John, Mary, Alex gives a green/yellow/red status, and Sarah confirms owners and ETAs for the test environment and UI approval before standup ends.",
+      "icon": "lightbulb",
       "confidence": 90
     },
     {
       "id": "rec-2",
-      "title": "Expedite Testing Environment Setup",
-      "description": "Address the testing environment readiness immediately to ensure Mary's frontend components can be tested on schedule.",
-      "icon": "speed",
-      "confidence": 95
+      "title": "Convert the email's relative dates (Wednesday / Thursday / Friday) into concrete ISO deadlines on the calendar today so the team has a single source of truth and standups can track slip precisely.",
+      "description": "Convert the email's relative dates (Wednesday / Thursday / Friday) into concrete ISO deadlines on the calendar today so the team has a single source of truth and standups can track slip precisely.",
+      "icon": "lightbulb",
+      "confidence": 90
     },
     {
       "id": "rec-3",
-      "title": "Escalate UI Design Approval",
-      "description": "Contact the client immediately to secure UI design approval to prevent frontend development delays.",
-      "icon": "priority_high",
+      "title": "Treat the three risks as parallel work, not sequential — assign a named owner per risk and require a daily one-line update in standup until each is cleared or escalated.",
+      "description": "Treat the three risks as parallel work, not sequential — assign a named owner per risk and require a daily one-line update in standup until each is cleared or escalated.",
+      "icon": "lightbulb",
+      "confidence": 90
+    },
+    {
+      "id": "rec-4",
+      "title": "Pre-define a minimum-testable cut and a rollback plan per deliverable now, so if API stability slips or the test environment is still being provisioned, the Thursday/Friday milestones degrade gracefully instead of blocking.",
+      "description": "Pre-define a minimum-testable cut and a rollback plan per deliverable now, so if API stability slips or the test environment is still being provisioned, the Thursday/Friday milestones degrade gracefully instead of blocking.",
+      "icon": "lightbulb",
       "confidence": 90
     }
   ],
-  "missingInfoAlerts": [
-    {
-      "id": "alert-1",
-      "targetType": "task",
-      "targetName": "Frontend components ready for testing",
-      "severity": "Warning",
-      "description": "Client approval on UI designs is pending, which directly impacts frontend development.",
-      "suggestedAction": "Reach out to the client or account manager to get immediate sign-off on the UI designs."
-    },
-    {
-      "id": "alert-2",
-      "targetType": "project",
-      "targetName": "Project Phoenix",
-      "severity": "Warning",
-      "description": "Testing environment is not ready, which blocks the verification of frontend components.",
-      "suggestedAction": "Identify the owner of the testing environment and request an urgent status update and ETA."
-    }
-  ],
-  "_analysisMode": "gemini",
-  "_deploymentMode": "fallback"
+  "missingInfoAlerts": [],
+  "_analysisMode": "lemma",
+  "_deploymentMode": "development"
 }
