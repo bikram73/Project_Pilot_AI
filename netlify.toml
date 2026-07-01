@@ -1,20 +1,69 @@
 [build]
-  # Build command for the frontend
-  command = "npm run build"
+  # Build command for the frontend (use the netlify-specific build script)
+  command = "npm run build:netlify"
   # Directory to publish (Vite builds to 'dist')
   publish = "dist"
 
 [build.environment]
   NODE_VERSION = "18"
+  # Fix for Tailwind CSS native binding issues on Netlify
+  NPM_FLAGS = "--production=false"
+  # Clear npm cache to avoid binding issues
+  npm_config_cache = "/tmp/.npm"
+
+# Pre-build commands to fix native binding issues
+[build.processing]
+  skip_processing = false
 
 # Netlify Functions (Serverless functions for API routes)
 [functions]
   directory = "netlify/functions"
+  node_bundler = "nft"
 
 # API routes redirection to Netlify Functions
 [[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
+  from = "/api/analyze/latest"
+  to = "/.netlify/functions/analyze"
+  status = 200
+
+[[redirects]]
+  from = "/api/analyze"
+  to = "/.netlify/functions/analyze"
+  status = 200
+
+[[redirects]]
+  from = "/api/chat/mode"
+  to = "/.netlify/functions/chat"
+  status = 200
+
+[[redirects]]
+  from = "/api/chat/availability"
+  to = "/.netlify/functions/chat"
+  status = 200
+
+[[redirects]]
+  from = "/api/chat"
+  to = "/.netlify/functions/chat"
+  status = 200
+
+[[redirects]]
+  from = "/api/tasks"
+  to = "/.netlify/functions/tasks"
+  status = 200
+
+[[redirects]]
+  from = "/api/risks"
+  to = "/.netlify/functions/risks"
+  status = 200
+
+[[redirects]]
+  from = "/api/summary"
+  to = "/.netlify/functions/summary"
+  status = 200
+
+[[redirects]]
+  from = "/api/health"
+  to = "/.netlify/functions/health"
   status = 200
 
 # SPA fallback for client-side routing
