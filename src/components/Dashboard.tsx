@@ -279,7 +279,11 @@ Ask me anything about standup workloads, active blockers, or timeline diagnostic
     setIsTyping(true);
 
     try {
-      const replyText = await sendAgentMessage(text, data, chatMessages);
+      const { reply: replyText, mode } = await sendAgentMessage(text, data, chatMessages);
+      
+      // Update chat mode based on which service actually responded
+      setChatMode(mode === "gemini" ? "gemini" : "lemma");
+      
       const aiMsg: ChatMessage = {
         id: `ai-${Date.now()}`,
         sender: "ai",
@@ -292,10 +296,25 @@ Ask me anything about standup workloads, active blockers, or timeline diagnostic
       const errorMessage = e instanceof Error ? e.message : String(e);
       const errorDetails = typeof e === "object" && e !== null ? JSON.stringify(e, null, 2) : "";
       
-      const isUnauthenticated = errorMessage.includes("Please log into your Lemma workspace.") || errorDetails.includes("Please log into your Lemma workspace.");
-      const formattedErrorText = isUnauthenticated
-        ? `⚠️ **Please log into your Lemma workspace.**`
-        : `⚠️ **Operational Sync Error**: I couldn't reach your Lemma Chat Agent. Please verify your VITE_LEMMA_POD_ID or settings.\n\n**Error:** \`${errorMessage}\`\n\n${errorDetails ? `**Details:**\n\`\`\`json\n${errorDetails}\n\`\`\`` : ""}`;
+      // Check if this is a structured error response with failed services info
+      let formattedErrorText: string;
+      
+      if (e.details && e.failedServices) {
+        // Both services failed - show specific information
+        if (e.failedServices.includes("lemma") && e.failedServices.includes("gemini")) {
+          formattedErrorText = `⚠️ **Both Chat Services Unavailable**\n\n**Lemma Chat:** ${e.details.lemmaError}\n**Gemini Fallback:** ${e.details.geminiError}\n\nPlease check your API keys and network connection.`;
+        } else if (e.failedServices.includes("gemini")) {
+          formattedErrorText = `⚠️ **Gemini Fallback Error**: ${e.details.geminiError}\n\n*Note: Lemma chat was unavailable, attempted Gemini fallback.*`;
+        } else {
+          formattedErrorText = `⚠️ **Lemma Chat Error**: ${e.details.lemmaError}`;
+        }
+      } else {
+        // Legacy error handling
+        const isUnauthenticated = errorMessage.includes("Please log into your Lemma workspace.") || errorDetails.includes("Please log into your Lemma workspace.");
+        formattedErrorText = isUnauthenticated
+          ? `⚠️ **Please log into your Lemma workspace.**`
+          : `⚠️ **Chat Service Error**: ${errorMessage}\n\n${errorDetails ? `**Details:**\n\`\`\`json\n${errorDetails}\n\`\`\`` : ""}`;
+      }
 
       setChatMessages((prev) => [
         ...prev,

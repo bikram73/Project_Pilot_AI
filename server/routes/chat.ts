@@ -43,11 +43,24 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
         `[Express API /api/chat] Lemma Agent unavailable. Running Gemini chat fallback. Error: ${lemmaError.message || lemmaError}`
       );
 
-      // 2. Fallback to Gemini
-      console.log("[Express API /api/chat] Activating Gemini conversational assistant...");
-      const reply = await chatWithGemini(message, projectData, history);
-      console.log("[Express API /api/chat] Gemini conversational assistant responded successfully.");
-      return res.json({ reply, mode: "gemini" });
+      try {
+        // 2. Fallback to Gemini
+        console.log("[Express API /api/chat] Activating Gemini conversational assistant...");
+        const reply = await chatWithGemini(message, projectData, history);
+        console.log("[Express API /api/chat] Gemini conversational assistant responded successfully.");
+        return res.json({ reply, mode: "gemini" });
+      } catch (geminiError: any) {
+        console.error(`[Express API /api/chat] Both Lemma and Gemini failed. Lemma: ${lemmaError.message}, Gemini: ${geminiError.message}`);
+        // Return specific error about which service failed
+        return res.status(500).json({ 
+          error: "Both chat services are unavailable", 
+          details: {
+            lemmaError: lemmaError.message || "Lemma chat service unavailable",
+            geminiError: geminiError.message || "Gemini fallback service unavailable"
+          },
+          failedServices: ["lemma", "gemini"]
+        });
+      }
     }
 
   } catch (err) {

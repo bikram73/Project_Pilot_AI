@@ -16,7 +16,7 @@ function getGeminiClient() {
 
 async function chatWithGemini(message, projectData, history = []) {
   const ai = getGeminiClient();
-  const model = ai.getGenerativeModel({ model: "gemini-1.5-pro" });
+  const model = ai.getGenerativeModel({ model: "gemini-3.5-flash" });
   const safeProjectData = projectData || {};
 
   const systemInstruction = `You are ProjectPilot AI, a highly professional operational assistant and project management expert.

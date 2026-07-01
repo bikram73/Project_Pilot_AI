@@ -39,7 +39,7 @@ export async function sendAgentMessage(
   message: string,
   projectData: ProjectData,
   history: ChatMessage[] = []
-): Promise<string> {
+): Promise<{ reply: string; mode: string }> {
   try {
     const res = await fetch("/api/chat", {
       method: "POST",
@@ -51,13 +51,21 @@ export async function sendAgentMessage(
 
     if (!res.ok) {
       const errData = await res.json().catch(() => ({}));
-      throw new Error(errData.error || `HTTP error ${res.status}`);
+      const error = new Error(errData.error || `HTTP error ${res.status}`);
+      // Attach structured error details if available
+      if (errData.details) {
+        (error as any).details = errData.details;
+      }
+      if (errData.failedServices) {
+        (error as any).failedServices = errData.failedServices;
+      }
+      throw error;
     }
 
     const data = await res.json();
-    return data.reply;
+    return { reply: data.reply, mode: data.mode || "unknown" };
   } catch (error: any) {
     console.error("[Chat Client] Error dispatching agent message:", error);
-    throw new Error(error.message || "Failed to communicate with the project assistant.");
+    throw error; // Re-throw the original error with its structured details
   }
 }
