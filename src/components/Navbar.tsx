@@ -80,7 +80,7 @@ export default function Navbar({
 
         <div className="flex items-center gap-4">
           <a
-            href="https://github.com/bikram73/ProjectPilot_AI"
+            href="https://github.com/bikram73/Project_Pilot_AI"
             target="_blank"
             rel="noopener noreferrer"
             className="hidden sm:flex items-center gap-1.5 text-gray-600 dark:text-gray-400 hover:text-[#004ac6] dark:hover:text-[#b4c5ff] text-sm font-medium transition-colors"
