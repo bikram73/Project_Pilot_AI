@@ -1,4 +1,5 @@
 // Netlify Function for /api/summary endpoint
+
 exports.handler = async (event, context) => {
   // Handle CORS preflight requests
   if (event.httpMethod === 'OPTIONS') {
@@ -14,18 +15,27 @@ exports.handler = async (event, context) => {
 
   try {
     if (event.httpMethod === 'GET') {
-      // Return summary from cached analysis
-      const cachedAnalysis = global.cachedAnalysis || {};
+      // Get summary from cached analysis
+      const cachedAnalysis = global.cachedAnalysis || {
+        projectTitle: "No Analysis Available",
+        projectSummary: "No analysis has been performed yet.",
+        estimatedCompletion: "TBD",
+        aiConfidenceOverall: 100,
+        blockedTasksCount: 0,
+        dependenciesCount: 0,
+        objectives: [],
+        keyDeliverables: []
+      };
       
       const summary = {
-        projectTitle: cachedAnalysis.projectTitle || "Project Overview",
-        projectSummary: cachedAnalysis.projectSummary || "No summary available.",
-        estimatedCompletion: cachedAnalysis.estimatedCompletion || "TBD",
-        aiConfidenceOverall: cachedAnalysis.aiConfidenceOverall || 100,
-        blockedTasksCount: cachedAnalysis.blockedTasksCount || 0,
-        dependenciesCount: cachedAnalysis.dependenciesCount || 0,
-        objectives: cachedAnalysis.objectives || [],
-        keyDeliverables: cachedAnalysis.keyDeliverables || []
+        projectTitle: cachedAnalysis.projectTitle,
+        projectSummary: cachedAnalysis.projectSummary,
+        estimatedCompletion: cachedAnalysis.estimatedCompletion,
+        aiConfidenceOverall: cachedAnalysis.aiConfidenceOverall,
+        blockedTasksCount: cachedAnalysis.blockedTasksCount,
+        dependenciesCount: cachedAnalysis.dependenciesCount,
+        objectives: cachedAnalysis.objectives,
+        keyDeliverables: cachedAnalysis.keyDeliverables
       };
       
       return {
@@ -47,7 +57,7 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error("[Netlify Function Error]:", error);
+    console.error("[Netlify Summary Function Error]:", error);
     
     return {
       statusCode: 500,

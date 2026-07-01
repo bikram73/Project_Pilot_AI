@@ -1,4 +1,5 @@
 // Netlify Function for /api/health endpoint
+
 exports.handler = async (event, context) => {
   // Handle CORS preflight requests
   if (event.httpMethod === 'OPTIONS') {
@@ -14,17 +15,30 @@ exports.handler = async (event, context) => {
 
   try {
     if (event.httpMethod === 'GET') {
+      const health = {
+        status: "healthy",
+        timestamp: new Date().toISOString(),
+        deployment: "netlify",
+        functions: {
+          analyze: "available",
+          chat: "available",
+          tasks: "available",
+          risks: "available",
+          summary: "available"
+        },
+        integrations: {
+          lemma: process.env.LEMMA_POD_ID && process.env.LEMMA_SESSION_TOKEN ? "configured" : "not_configured",
+          gemini: process.env.GEMINI_API_KEY ? "configured" : "not_configured"
+        }
+      };
+      
       return {
         statusCode: 200,
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
         },
-        body: JSON.stringify({ 
-          status: "ok", 
-          platform: "netlify",
-          timestamp: new Date().toISOString()
-        }),
+        body: JSON.stringify(health),
       };
     }
 
@@ -37,6 +51,8 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
+    console.error("[Netlify Health Function Error]:", error);
+    
     return {
       statusCode: 500,
       headers: {
@@ -44,7 +60,8 @@ exports.handler = async (event, context) => {
         'Access-Control-Allow-Origin': '*',
       },
       body: JSON.stringify({ 
-        error: error.message || 'Internal Server Error' 
+        error: error.message || 'Internal Server Error',
+        status: "unhealthy"
       }),
     };
   }

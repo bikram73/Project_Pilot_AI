@@ -1,4 +1,5 @@
 // Netlify Function for /api/tasks endpoint
+
 exports.handler = async (event, context) => {
   // Handle CORS preflight requests
   if (event.httpMethod === 'OPTIONS') {
@@ -14,7 +15,7 @@ exports.handler = async (event, context) => {
 
   try {
     if (event.httpMethod === 'GET') {
-      // Return tasks from cached analysis
+      // Get tasks from cached analysis
       const cachedAnalysis = global.cachedAnalysis || { tasks: [] };
       
       return {
@@ -36,7 +37,7 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error("[Netlify Function Error]:", error);
+    console.error("[Netlify Tasks Function Error]:", error);
     
     return {
       statusCode: 500,
