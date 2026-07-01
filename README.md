@@ -201,9 +201,9 @@ projectpilot-ai/
 
 ### 📋 Prerequisites
 - **Node.js** v20+ and **npm** v10+ installed
-- **Lemma CLI** for authentication setup
-- **Python/uv** (for Lemma CLI installation)
+- **Lemma CLI** for authentication and token management
 - **Netlify Account** (for deployment)
+- **Google Account** (for Gemini API key)
 
 ### 1️⃣ Clone & Install
 ```bash
@@ -212,45 +212,143 @@ cd projectpilot-ai
 npm install
 ```
 
-### 2️⃣ Lemma Authentication Setup
-Install and authenticate with Lemma CLI:
+### 2️⃣ Lemma CLI Installation & Authentication Setup
+
+#### Step 1: Install Lemma CLI
+Choose one of the following installation methods:
+
+**Option A: Global npm installation (Recommended)**
+```bash
+npm install -g @lemma-ai/cli
+```
+
+**Option B: Use npx (No installation required)**
+```bash
+# You can run commands with npx @lemma-ai/cli instead of lemma
+npx @lemma-ai/cli --version
+```
+
+**Option C: Alternative installation via uv (Python package manager)**
+```bash
+# Install uv first if not available
+pip install uv
+uv tool install lemma-cli
+```
+
+#### Step 2: Windows PATH Setup (Windows Users Only)
+If the `lemma` command is not found after installation, add it to your PATH:
+
+```powershell
+# PowerShell - Add Lemma CLI to PATH
+$env:Path = "C:\Users\Admin\.local\bin;$env:Path"
+
+# Or permanently add to system PATH via System Properties > Environment Variables
+```
+
+#### Step 3: Authenticate with Lemma
+Log in to your Lemma account (this opens your browser):
 
 ```bash
-# Install Lemma CLI via uv (Python package manager)
-uv tool install lemma-cli
+# Standard authentication
+lemma --no-verify-ssl auth login
 
-# Authenticate with Lemma (opens browser)
-lemma auth login
-
-# Get session token for server
-lemma auth print-token
+# Or using npx if not globally installed
+npx @lemma-ai/cli --no-verify-ssl auth login
 ```
+
+**Note:** The `--no-verify-ssl` flag is required for Windows compatibility and certificate issues.
+
+#### Step 4: Generate Session Token
+Generate a fresh session token for backend authentication:
+
+```bash
+# Generate new session token
+lemma --no-verify-ssl auth print-token
+
+# This outputs a JWT token like:
+# eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+#### Step 5: Verify Authentication (Optional)
+Confirm you're properly logged in:
+
+```bash
+# Check authentication status
+lemma --no-verify-ssl auth whoami
+
+# Or check status (depending on CLI version)
+lemma --no-verify-ssl auth status
+```
+
+#### Complete Workflow for Token Refresh
+When your token expires, use this complete workflow:
+
+```bash
+# 1. Log out (optional, clears old session)
+lemma --no-verify-ssl auth logout
+
+# 2. Log back in (opens browser)
+lemma --no-verify-ssl auth login
+
+# 3. Generate fresh token
+lemma --no-verify-ssl auth print-token
+```
+
+#### Troubleshooting Lemma CLI
+
+**If `print-token` doesn't work:**
+1. Check your CLI version:
+   ```bash
+   lemma --version
+   ```
+
+2. Update to latest version:
+   ```bash
+   npm install -g @lemma-ai/cli@latest
+   ```
+
+3. Try alternative login method:
+   ```bash
+   npx @lemma-ai/cli --no-verify-ssl auth login
+   npx @lemma-ai/cli --no-verify-ssl auth print-token
+   ```
+
+**Common Issues:**
+- **Command not found:** Ensure CLI is in PATH or use `npx @lemma-ai/cli`
+- **SSL Certificate errors:** Always use `--no-verify-ssl` flag
+- **Authentication timeout:** Try logging out and back in
+- **Token format errors:** Ensure you copy the complete JWT token
 
 ### 3️⃣ Environment Configuration
-Create `.env` file in the root directory:
+Create `.env` file in the root directory with your Lemma session token:
 
 ```env
-# Lemma Configuration
+# Lemma Configuration (High Priority Analysis Engine)
 LEMMA_API_URL=https://api.lemma.work
 LEMMA_POD_ID=019f0d4a-33ad-75da-bc5d-43561cba9491
-LEMMA_SESSION_TOKEN=<output-from-lemma-auth-print-token>
+LEMMA_SESSION_TOKEN=<paste-your-complete-JWT-token-here>
 LEMMA_PROXY_ALLOWED_ORIGIN=https://your-netlify-app.netlify.app
 
-# Google Gemini API Configuration (Fallback Engine)
+# Google Gemini API Configuration (Low Priority Fallback Engine)
 GEMINI_API_KEY=your_gemini_api_key_here
 
-# Application URL (for production deployment)
+# Application Configuration
 APP_URL=https://your-netlify-app.netlify.app
 
-# Windows Development (if needed)
+# Windows Development (SSL Certificate Bypass)
 NODE_TLS_REJECT_UNAUTHORIZED=0
 ```
+
+**Important Notes:**
+- Replace `<paste-your-complete-JWT-token-here>` with the full token from `lemma auth print-token`
+- The token should start with `eyJ` and be very long (hundreds of characters)
+- Never commit your `.env` file to version control - it's already in `.gitignore`
 
 **Getting your Gemini API Key:**
 1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
 2. Sign in with your Google account
 3. Click "Create API Key" 
-4. Copy the key to your `.env` file
+4. Copy the key to your `.env` file as `GEMINI_API_KEY`
 
 ### 4️⃣ Development Server
 ```bash
@@ -283,16 +381,21 @@ npm run start
    Publish directory: dist
    ```
 
-3. **Set Environment Variables** in Netlify dashboard:
+3. **Set Environment Variables** in Netlify dashboard (Site Settings > Environment Variables):
    ```
    LEMMA_API_URL=https://api.lemma.work
    LEMMA_POD_ID=019f0d4a-33ad-75da-bc5d-43561cba9491  
-   LEMMA_SESSION_TOKEN=[your-token]
-   GEMINI_API_KEY=[your-gemini-key]
+   LEMMA_SESSION_TOKEN=[your-complete-JWT-token-from-lemma-auth-print-token]
+   GEMINI_API_KEY=[your-gemini-api-key-from-google-ai-studio]
    APP_URL=https://your-app-name.netlify.app
    LEMMA_PROXY_ALLOWED_ORIGIN=https://your-app-name.netlify.app
    NODE_TLS_REJECT_UNAUTHORIZED=0
    ```
+
+   **Critical:** 
+   - The `LEMMA_SESSION_TOKEN` must be the complete JWT token (starts with `eyJ`, very long)
+   - Get fresh token using: `lemma --no-verify-ssl auth print-token`
+   - Update both local `.env` and Netlify environment variables
 
 4. **Deploy:** Netlify will automatically build and deploy your site
 
@@ -318,12 +421,52 @@ The application connects to the **ProjectPilot AI** pod with these workflows:
 - **project-analyzer** - Main analysis workflow
 - **chat-agent** - Interactive chat assistance
 
-### Token Refresh
-Lemma session tokens expire periodically. To refresh:
+### Token Refresh & Maintenance
+Lemma session tokens expire periodically. When you see authentication errors:
+
+#### For Local Development:
 ```bash
-lemma auth login    # If session expired
-lemma auth print-token    # Get new token
-# Update LEMMA_SESSION_TOKEN in Netlify environment variables
+# 1. Generate fresh token
+lemma --no-verify-ssl auth print-token
+
+# 2. Update your local .env file
+# Replace LEMMA_SESSION_TOKEN with the new token
+
+# 3. Restart your development server
+npm run dev
+```
+
+#### For Netlify Production:
+```bash
+# 1. Generate fresh token locally
+lemma --no-verify-ssl auth print-token
+
+# 2. Update Netlify environment variables:
+# - Go to Netlify Dashboard > Site Settings > Environment Variables
+# - Update LEMMA_SESSION_TOKEN with the new token
+# - Save changes
+
+# 3. Redeploy (automatic) or trigger manual deploy
+```
+
+#### Complete Token Refresh Workflow:
+```bash
+# Step 1: Logout and re-login for clean session
+lemma --no-verify-ssl auth logout
+lemma --no-verify-ssl auth login
+
+# Step 2: Generate fresh token
+lemma --no-verify-ssl auth print-token
+
+# Step 3: Copy the complete JWT token (starts with eyJ...)
+
+# Step 4: Update environment variables
+# - Local: Update .env file
+# - Production: Update Netlify dashboard
+
+# Step 5: Restart/redeploy
+# - Local: npm run dev
+# - Production: Automatic redeploy
 ```
 
 ---
@@ -412,18 +555,39 @@ curl -X POST http://localhost:5173/.netlify/functions/chat \
 
 #### Lemma CLI Installation Issues
 ```bash
-# If lemma command not found, install via uv
-pip install uv
-uv tool install lemma-cli
+# Command not found error
+# Solution 1: Use npx instead
+npx @lemma-ai/cli --no-verify-ssl auth login
+npx @lemma-ai/cli --no-verify-ssl auth print-token
 
-# For Windows termios errors, ensure using latest CLI version
-uv tool upgrade lemma-cli
+# Solution 2: Install globally
+npm install -g @lemma-ai/cli@latest
+
+# Solution 3: Check/update PATH (Windows)
+$env:Path = "C:\Users\Admin\.local\bin;$env:Path"
+
+# Windows termios errors - update CLI version
+npm uninstall -g @lemma-ai/cli
+npm install -g @lemma-ai/cli@latest
+```
+
+#### Token Issues
+```bash
+# Invalid or expired token errors
+# Solution: Generate fresh token
+lemma --no-verify-ssl auth logout
+lemma --no-verify-ssl auth login  
+lemma --no-verify-ssl auth print-token
+
+# Copy complete JWT token (very long, starts with eyJ)
+# Update both .env file and Netlify environment variables
 ```
 
 #### Connection Issues
-- **401 Authentication Error:** Refresh Lemma session token and update in Netlify environment
+- **401 Authentication Error:** Generate fresh token with `lemma --no-verify-ssl auth print-token`
 - **Timeout Issues:** Check Netlify Functions execution logs for timeout errors
-- **CORS Errors:** Verify `LEMMA_PROXY_ALLOWED_ORIGIN` matches your Netlify app URL
+- **CORS Errors:** Verify `LEMMA_PROXY_ALLOWED_ORIGIN` matches your Netlify app URL exactly
+- **SSL Certificate Errors:** Always use `--no-verify-ssl` flag with Lemma CLI commands
 
 #### Development Server Issues
 - **Port Conflicts:** Check if port 5173 (frontend) is available
