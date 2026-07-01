@@ -1,0 +1,6 @@
+{
+  "name": "ProjectPilot AI",
+  "description": "AI-powered project operations assistant that transforms meeting notes and documents into structured tasks, summaries, risks, and recommendations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

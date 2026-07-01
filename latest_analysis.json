@@ -1,0 +1,137 @@
+{
+  "projectTitle": "Project Analysis",
+  "projectSummary": "Q4 sprint planning notes lay out a tightly-scoped week with three parallel workstreams converging before testing: ship the login module by Friday 2026-07-03, with Rahul delivering the backend API and Ananya delivering the dashboard design in parallel. Payment integration is fully gated on receiving Stripe API keys (no owner assigned yet), and a system-wide testing cycle kicks off the following Monday (2026-07-06) once all four streams reach a testable state. The critical path is the Friday login-module ship, supported by Rahul's API; the largest unresolved external dependency is the Stripe API keys.",
+  "estimatedCompletion": "TBD",
+  "aiConfidenceOverall": 95,
+  "blockedTasksCount": 1,
+  "dependenciesCount": 0,
+  "objectives": [
+    "Ship the login module by Friday 2026-07-03 so QA can begin on Monday with a stable base.",
+    "Stand up the backend API (Rahul) and the dashboard design (Ananya) in parallel in time for Monday testing.",
+    "Unblock payment integration by obtaining Stripe API keys so the Monday test cycle can cover billing.",
+    "Kick off system testing on Monday 2026-07-06."
+  ],
+  "keyDeliverables": [],
+  "tasks": [
+    {
+      "id": "task-1",
+      "name": "Complete the login module",
+      "owner": "Unassigned",
+      "deadline": "2026-07-03",
+      "priority": "High",
+      "category": "General",
+      "status": "Todo",
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
+    },
+    {
+      "id": "task-2",
+      "name": "Develop the backend API",
+      "owner": "Rahul",
+      "deadline": "2026-07-03",
+      "priority": "High",
+      "category": "General",
+      "status": "Todo",
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
+    },
+    {
+      "id": "task-3",
+      "name": "Design the dashboard",
+      "owner": "Ananya",
+      "deadline": "2026-07-03",
+      "priority": "Medium",
+      "category": "General",
+      "status": "Todo",
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
+    },
+    {
+      "id": "task-4",
+      "name": "Integrate payment (blocked pending Stripe API keys)",
+      "owner": "Unassigned",
+      "deadline": "TBD",
+      "priority": "High",
+      "category": "General",
+      "status": "Blocked",
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
+    },
+    {
+      "id": "task-5",
+      "name": "Begin testing kickoff",
+      "owner": "Unassigned",
+      "deadline": "2026-07-06",
+      "priority": "Medium",
+      "category": "General",
+      "status": "Todo",
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
+    }
+  ],
+  "risks": [
+    {
+      "id": "risk-1",
+      "name": "Payment integration is blocked on Stripe API keys not yet received",
+      "severity": "High",
+      "description": "Payment integration is blocked on Stripe API keys not yet received",
+      "solution": "Escalate immediately to whoever controls the Stripe account to obtain both test and live keys; in parallel, build and test the payment flow against Stripe's sandbox so the integration is verified the moment real keys arrive and Monday testing is not delayed.",
+      "confidence": 90
+    },
+    {
+      "id": "risk-2",
+      "name": "Login module has a hard Friday deadline and depends on Rahul's backend API being ready in parallel",
+      "severity": "Medium",
+      "description": "Login module has a hard Friday deadline and depends on Rahul's backend API being ready in parallel",
+      "solution": "Track login-module progress daily this week with Rahul and the module owner; if scope starts to slip, pre-agree a minimum-testable cut (core auth / email-password + session) so the Friday ship date is still met.",
+      "confidence": 90
+    },
+    {
+      "id": "risk-3",
+      "name": "Monday testing kickoff depends on backend API, dashboard, and login module all reaching a testable state in time",
+      "severity": "Medium",
+      "description": "Monday testing kickoff depends on backend API, dashboard, and login module all reaching a testable state in time",
+      "solution": "Hold a Monday-morning readiness review with Rahul and Ananya; define a minimum-testable cut of each component, verify the test environment and fixtures are in place, and confirm Stripe test keys are available before QA begins.",
+      "confidence": 90
+    }
+  ],
+  "recommendations": [
+    {
+      "id": "rec-1",
+      "title": "Escalate the Stripe API key request today so payment integration is unblocked before Monday's testing starts; in parallel, build and test against Stripe's sandbox so the integration is verified end-to-end the moment real keys arrive.",
+      "description": "Escalate the Stripe API key request today so payment integration is unblocked before Monday's testing starts; in parallel, build and test against Stripe's sandbox so the integration is verified end-to-end the moment real keys arrive.",
+      "icon": "lightbulb",
+      "confidence": 90
+    },
+    {
+      "id": "rec-2",
+      "title": "Run a daily login-module check-in this week with Rahul and the module owner to protect the Friday 2026-07-03 deadline.",
+      "description": "Run a daily login-module check-in this week with Rahul and the module owner to protect the Friday 2026-07-03 deadline.",
+      "icon": "lightbulb",
+      "confidence": 90
+    },
+    {
+      "id": "rec-3",
+      "title": "Pre-define a minimum-testable scope for the login module (core auth / email-password + session) as a fallback if any workstream slips, to keep the Friday ship date.",
+      "description": "Pre-define a minimum-testable scope for the login module (core auth / email-password + session) as a fallback if any workstream slips, to keep the Friday ship date.",
+      "icon": "lightbulb",
+      "confidence": 90
+    },
+    {
+      "id": "rec-4",
+      "title": "Hold a Monday-morning readiness review with Rahul and Ananya to confirm backend, dashboard, and login are all stable enough to test, and that Stripe test keys are available.",
+      "description": "Hold a Monday-morning readiness review with Rahul and Ananya to confirm backend, dashboard, and login are all stable enough to test, and that Stripe test keys are available.",
+      "icon": "lightbulb",
+      "confidence": 90
+    },
+    {
+      "id": "rec-5",
+      "title": "Align Rahul's API contract and Ananya's dashboard designs ahead of Monday so QA can exercise both end-to-end from day one.",
+      "description": "Align Rahul's API contract and Ananya's dashboard designs ahead of Monday so QA can exercise both end-to-end from day one.",
+      "icon": "lightbulb",
+      "confidence": 90
+    }
+  ],
+  "missingInfoAlerts": [],
+  "_analysisMode": "lemma"
+}
