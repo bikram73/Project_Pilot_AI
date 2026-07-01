@@ -1,19 +1,13 @@
 [build]
-  # Build command for the frontend (use the netlify-specific build script)
-  command = "npm run build:netlify"
+  # Use a simpler build command to avoid Tailwind native binding issues
+  command = "rm -rf node_modules package-lock.json && npm install && npm run build:netlify"
   # Directory to publish (Vite builds to 'dist')
   publish = "dist"
 
 [build.environment]
   NODE_VERSION = "18"
-  # Fix for Tailwind CSS native binding issues on Netlify
-  NPM_FLAGS = "--production=false"
-  # Clear npm cache to avoid binding issues
-  npm_config_cache = "/tmp/.npm"
-
-# Pre-build commands to fix native binding issues
-[build.processing]
-  skip_processing = false
+  # Environment variables for Netlify build
+  npm_config_legacy_peer_deps = "true"
 
 # Netlify Functions (Serverless functions for API routes)
 [functions]
