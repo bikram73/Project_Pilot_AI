@@ -597,17 +597,35 @@ Ask me anything about standup workloads, active blockers, or timeline diagnostic
       {/* 2. Main Content Stage */}
       <main className="flex-grow p-6 lg:p-10 max-w-7xl mx-auto space-y-8 w-full overflow-y-auto min-w-0">
         
-        {/* Fallback Banner for transparency */}
+        {/* Analysis Mode Status Banners */}
+        {data._analysisMode === "lemma" && (
+          <div className="bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/40 p-4.5 rounded-2xl flex items-start gap-3.5 shadow-sm animate-fadeIn">
+            <div className="w-5.5 h-5.5 bg-emerald-600 dark:bg-emerald-400 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0">
+              <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+            </div>
+            <div className="flex-grow">
+              <h4 className="text-xs font-extrabold uppercase tracking-widest text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+                🚀 Powered by Lemma (High Priority)
+                <span className="text-[9px] bg-emerald-100 dark:bg-emerald-900/50 px-2 py-0.5 rounded-full font-mono">PREMIUM MODE</span>
+              </h4>
+              <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-1 leading-relaxed">
+                Advanced AI workflow analysis completed successfully! Using enterprise-grade Lemma intelligence for maximum accuracy and detailed project insights.
+              </p>
+            </div>
+          </div>
+        )}
+
         {data._analysisMode === "gemini" && (
           <div className="bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/40 p-4.5 rounded-2xl flex items-start gap-3.5 shadow-sm animate-fadeIn">
             <Sparkles className="w-5.5 h-5.5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0 animate-pulse" />
             <div className="flex-grow">
-              <h4 className="text-xs font-extrabold uppercase tracking-widest text-amber-800 dark:text-amber-300">
-                Powered by Gemini (Fallback Mode)
+              <h4 className="text-xs font-extrabold uppercase tracking-widest text-amber-800 dark:text-amber-300 flex items-center gap-2">
+                ⚠️ Powered by Gemini (Low Priority Fallback)
+                <span className="text-[9px] bg-amber-100 dark:bg-amber-900/50 px-2 py-0.5 rounded-full font-mono">BACKUP MODE</span>
               </h4>
               <p className="text-xs text-amber-700 dark:text-amber-400 mt-1 leading-relaxed">
-                The Lemma Analysis Workflow was temporarily unavailable <span className="font-mono text-[10px] bg-amber-100/50 dark:bg-amber-900/30 px-1.5 py-0.5 rounded">({data._lemmaError || "connection issue"})</span>. 
-                Continued seamlessly with dynamic, high-fidelity Gemini AI analysis to build your interactive control panel!
+                Lemma Analysis Workflow temporarily unavailable <span className="font-mono text-[10px] bg-amber-100/50 dark:bg-amber-900/30 px-1.5 py-0.5 rounded">({data._lemmaError || "connection issue"})</span>. 
+                Using reliable Gemini AI fallback for project analysis.
               </p>
             </div>
           </div>
