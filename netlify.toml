@@ -1,0 +1,41 @@
+[build]
+  # Build command for the frontend
+  command = "npm run build"
+  # Directory to publish (Vite builds to 'dist')
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+# Netlify Functions (Serverless functions for API routes)
+[functions]
+  directory = "netlify/functions"
+
+# API routes redirection to Netlify Functions
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# SPA fallback for client-side routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers for security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# CORS headers for API
+[[headers]]
+  for = "/.netlify/functions/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
