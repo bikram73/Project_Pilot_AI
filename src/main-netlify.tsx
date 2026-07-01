@@ -3,7 +3,7 @@ import './patch-fetch'; // Must be imported first to patch window.fetch before a
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
-import './styles-fallback.css'; // Use fallback CSS without Tailwind for Netlify
+import './index.css'; // Use full Tailwind CSS processing for Netlify
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

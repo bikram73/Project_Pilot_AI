@@ -1,8 +1,10 @@
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
+import tailwindcss from 'tailwindcss';
+import autoprefixer from 'autoprefixer';
 
-// Ultra-simple Vite config for Netlify - no PostCSS, no Tailwind plugins
+// Netlify-optimized Vite config with proper Tailwind CSS processing
 export default defineConfig(() => {
   return {
     plugins: [react()],
@@ -22,9 +24,14 @@ export default defineConfig(() => {
         },
       },
     },
-    // Skip CSS processing completely
+    // Enable proper CSS processing with PostCSS and Tailwind
     css: {
-      postcss: {},
+      postcss: {
+        plugins: [
+          tailwindcss,
+          autoprefixer,
+        ],
+      },
     },
   };
 });
