@@ -1,15 +1,13 @@
 [build]
-  # Use a simpler build command to avoid Tailwind native binding issues
-  command = "rm -rf node_modules package-lock.json && npm install && npm run build:netlify"
-  # Directory to publish (Vite builds to 'dist')
+  # Super simple build command
+  command = "npm run build:netlify"
+  # Directory to publish
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "18"
-  # Environment variables for Netlify build
-  npm_config_legacy_peer_deps = "true"
+  NODE_VERSION = "20"
 
-# Netlify Functions (Serverless functions for API routes)
+# Netlify Functions
 [functions]
   directory = "netlify/functions"
   node_bundler = "nft"
@@ -63,17 +61,8 @@
 # SPA fallback for client-side routing
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to = "/index-netlify.html"
   status = 200
-
-# Headers for security
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
 
 # CORS headers for API
 [[headers]]
