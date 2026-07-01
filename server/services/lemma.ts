@@ -114,8 +114,194 @@ const DEFAULT_PROJECT = {
   ]
 };
 
+// In-memory storage for workflow run tracking (in production, use Redis or database)
+const activeWorkflows = new Map<string, { 
+  status: string; 
+  startTime: number; 
+  payload: any;
+  result?: any;
+  error?: string;
+}>();
+
 // In-memory cache of the latest analysis
 let cachedProjectData: any = null;
+
+/**
+ * Starts a Lemma workflow asynchronously and returns the run ID immediately (fire-and-forget)
+ */
+export async function startWorkflowAsync(payload: {
+  source?: string;
+  documents?: Array<{ title: string; content: string }>;
+}): Promise<string> {
+  const client = getLemmaClient();
+  const workflowName = process.env.LEMMA_WORKFLOW || "project-analysis-workflow";
+
+  console.log(`[Lemma Async Start] Initiating workflow: ${workflowName}`);
+
+  // 1. Create Run
+  const run = await client.workflows.runs.create(workflowName);
+  const runId = run.id;
+  
+  // Store in tracking map
+  activeWorkflows.set(runId, {
+    status: "STARTING",
+    startTime: Date.now(),
+    payload
+  });
+
+  console.log(`[Lemma Async Start] Created run ID: ${runId}`);
+
+  // 2. Start async processing (don't wait)
+  processWorkflowAsync(runId, run, payload).catch(err => {
+    console.error(`[Lemma Async Error] Run ${runId} failed:`, err);
+    activeWorkflows.set(runId, {
+      status: "FAILED",
+      startTime: activeWorkflows.get(runId)?.startTime || Date.now(),
+      payload,
+      error: err.message
+    });
+  });
+
+  return runId;
+}
+
+/**
+ * Process the workflow asynchronously in the background
+ */
+async function processWorkflowAsync(runId: string, run: any, payload: any) {
+  try {
+    console.log(`[Lemma Async Process] Processing run ${runId}`);
+    
+    // Update status
+    activeWorkflows.set(runId, {
+      status: "SUBMITTING",
+      startTime: activeWorkflows.get(runId)?.startTime || Date.now(),
+      payload
+    });
+
+    const activeWait = run.active_wait;
+    if (!activeWait) {
+      throw new Error("The Lemma workflow did not open with an input form block.");
+    }
+
+    const client = getLemmaClient();
+
+    // Submit form inputs
+    const inputs: Record<string, any> = {};
+    if (payload.source) inputs.source = payload.source;
+    if (payload.documents) inputs.documents = payload.documents;
+
+    console.log(`[Lemma Async Process] Submitting inputs for run ${runId}`);
+    await client.workflows.runs.submitForm(runId, {
+      node_id: activeWait.node_id,
+      inputs,
+    });
+
+    // Update status
+    activeWorkflows.set(runId, {
+      status: "RUNNING",
+      startTime: activeWorkflows.get(runId)?.startTime || Date.now(),
+      payload
+    });
+
+    // Poll for completion (with longer timeout since it's async)
+    console.log(`[Lemma Async Process] Polling run ${runId}`);
+    const maxAttempts = 180; // 3 minutes for async processing
+    let attempts = 0;
+
+    while (attempts < maxAttempts) {
+      const pollState = await client.workflows.runs.get(runId);
+      const isTerminal = isTerminalFlowStatus(pollState.status);
+      const normalized = normalizeRunStatus(pollState.status);
+
+      console.log(`[Lemma Async Poll ${attempts}] Run ${runId} status: ${normalized}`);
+
+      if (isTerminal) {
+        if (normalized === "COMPLETED" || normalized === "SUCCEEDED") {
+          const output = extractOutput(pollState);
+          const transformedOutput = transformLemmaOutput(output);
+          transformedOutput._analysisMode = "lemma";
+          
+          // Store result
+          activeWorkflows.set(runId, {
+            status: "COMPLETED",
+            startTime: activeWorkflows.get(runId)?.startTime || Date.now(),
+            payload,
+            result: transformedOutput
+          });
+
+          // Also persist to file for backup
+          persistAnalysis(transformedOutput);
+
+          console.log(`[Lemma Async Complete] Run ${runId} completed successfully`);
+          return;
+        } else {
+          throw new Error(`Workflow failed with status: ${normalized}. Error: ${pollState.error || "Unknown"}`);
+        }
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      attempts++;
+    }
+
+    throw new Error("Async workflow polling timed out");
+
+  } catch (error: any) {
+    console.error(`[Lemma Async Error] Run ${runId}:`, error);
+    activeWorkflows.set(runId, {
+      status: "FAILED",
+      startTime: activeWorkflows.get(runId)?.startTime || Date.now(),
+      payload,
+      error: error.message
+    });
+  }
+}
+
+/**
+ * Get the status of a workflow run
+ */
+export async function getWorkflowStatus(runId: string): Promise<{
+  runId: string;
+  status: string;
+  elapsed: number;
+  result?: any;
+  error?: string;
+}> {
+  const workflow = activeWorkflows.get(runId);
+  
+  if (!workflow) {
+    // Try to check with Lemma directly
+    try {
+      const client = getLemmaClient();
+      const run = await client.workflows.runs.get(runId);
+      const normalized = normalizeRunStatus(run.status);
+      
+      return {
+        runId,
+        status: normalized,
+        elapsed: 0,
+        result: normalized === "COMPLETED" ? extractOutput(run) : undefined
+      };
+    } catch (err) {
+      return {
+        runId,
+        status: "NOT_FOUND",
+        elapsed: 0,
+        error: "Workflow run not found"
+      };
+    }
+  }
+
+  const elapsed = Date.now() - workflow.startTime;
+
+  return {
+    runId,
+    status: workflow.status,
+    elapsed: Math.floor(elapsed / 1000),
+    result: workflow.result,
+    error: workflow.error
+  };
+}
 
 // Active Chat Conversation ID
 let activeConversationId: string | null = null;
@@ -291,9 +477,9 @@ export async function runWorkflow(payload: {
     inputs,
   });
 
-  // 3. Poll run until completed
+  // 3. Poll run until completed (optimized for serverless)
   console.log(`[Lemma Workflow Polling] Polling run status for ID: ${runId}`);
-  const maxAttempts = 300; // 5 minutes (300 seconds) with 1-second polling
+  const maxAttempts = 40; // 40 seconds maximum for serverless compatibility
   let attempts = 0;
   let finalRunState: WorkflowRunResponse | null = null;
 
@@ -313,12 +499,14 @@ export async function runWorkflow(payload: {
       }
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Poll every 1 second instead of 2
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Poll every 1 second
     attempts++;
   }
 
   if (!finalRunState) {
-    throw new Error("Workflow polling timed out before finishing execution.");
+    // For serverless environments, save the run ID and throw a specific error
+    console.warn(`[Lemma Workflow] Polling timed out after ${maxAttempts}s for run ${runId}. Workflow may still be completing.`);
+    throw new Error(`LEMMA_TIMEOUT:${runId}`);
   }
 
   const executionTime = Date.now() - startTime;

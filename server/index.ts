@@ -12,6 +12,7 @@ import { errorHandler } from "./middleware/errorHandler";
 
 // Load routes
 import analyzeRouter from "./routes/analyze";
+import workflowRouter from "./routes/workflow";
 import tasksRouter from "./routes/tasks";
 import risksRouter from "./routes/risks";
 import summaryRouter from "./routes/summary";
@@ -27,6 +28,7 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // Serve API routes first
 app.use("/api/analyze", analyzeRouter);
+app.use("/api/workflow", workflowRouter);
 app.use("/api/tasks", tasksRouter);
 app.use("/api/risks", risksRouter);
 app.use("/api/summary", summaryRouter);

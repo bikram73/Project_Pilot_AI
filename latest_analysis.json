@@ -1,23 +1,24 @@
 {
   "projectTitle": "Project Analysis",
-  "projectSummary": "Project Phoenix has three critical deliverables landing this week, owned by Sarah's Development Team: John is completing API integration by Wednesday, Mary is delivering frontend components for testing by Thursday, and Alex is deploying database migrations by Friday. Sarah has flagged three risks that could derail the week — third-party API instability, an unprepared testing environment, and pending client approval on the UI designs — and asked the team to report status at tomorrow's standup.",
+  "projectSummary": "Sprint 12 is converging on a Friday production deployment. Auth is already shipped (Sarah), the database migration is wrapping up today (Mike), and the frontend is 80% done (Lisa), but Lisa is blocked on missing API specs and Alex has just discovered 3 critical bugs in a still-being-set-up testing environment. Two infrastructure items have no named owner in the standup — the missing API documentation and the downed staging server — and both are on the critical path to the Friday ship.",
   "estimatedCompletion": "TBD",
   "aiConfidenceOverall": 95,
-  "blockedTasksCount": 0,
+  "blockedTasksCount": 2,
   "dependenciesCount": 0,
   "objectives": [
-    "Complete API integration by Wednesday so downstream services and frontend work can rely on a stable contract.",
-    "Ship frontend components in a testable state by Thursday so QA can begin Mary-driven UI validation.",
-    "Deploy database migrations to production by Friday with no data-loss regressions.",
-    "Surface and resolve three flagged risks — third-party API instability, test environment readiness, and pending client UI approval — before they block the weekly deliverables."
+    "Ship the Sprint 12 release to production on Friday (2026-07-03)",
+    "Clear the API documentation and staging server blockers within 24 hours",
+    "Triage and close all 3 critical bugs Alex surfaced before the deploy",
+    "Complete Mike's database migration today and Lisa's remaining 20% of frontend components by ship date",
+    "Finish Sarah's password reset feature in parallel with the deploy prep"
   ],
   "keyDeliverables": [],
   "tasks": [
     {
       "id": "task-1",
-      "name": "Complete API integration",
-      "owner": "John",
-      "deadline": "2026-07-01",
+      "name": "Complete password reset functionality",
+      "owner": "Sarah",
+      "deadline": "TBD",
       "priority": "High",
       "category": "General",
       "status": "Todo",
@@ -26,9 +27,9 @@
     },
     {
       "id": "task-2",
-      "name": "Deliver frontend components ready for testing",
-      "owner": "Mary",
-      "deadline": "2026-07-02",
+      "name": "Finish database migration",
+      "owner": "Mike",
+      "deadline": "2026-07-01",
       "priority": "High",
       "category": "General",
       "status": "Todo",
@@ -37,10 +38,54 @@
     },
     {
       "id": "task-3",
-      "name": "Deploy database migrations to production",
-      "owner": "Alex",
+      "name": "Finish remaining 20% of frontend components",
+      "owner": "Lisa",
       "deadline": "2026-07-03",
       "priority": "High",
+      "category": "General",
+      "status": "Blocked",
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
+    },
+    {
+      "id": "task-4",
+      "name": "Fix the 3 critical bugs found in the testing environment",
+      "owner": "Alex",
+      "deadline": "2026-07-03",
+      "priority": "Critical",
+      "category": "General",
+      "status": "Todo",
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
+    },
+    {
+      "id": "task-5",
+      "name": "Produce missing API documentation",
+      "owner": "unassigned",
+      "deadline": "2026-07-03",
+      "priority": "High",
+      "category": "General",
+      "status": "Blocked",
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
+    },
+    {
+      "id": "task-6",
+      "name": "Restore the staging server",
+      "owner": "unassigned",
+      "deadline": "2026-07-03",
+      "priority": "Critical",
+      "category": "General",
+      "status": "Todo",
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
+    },
+    {
+      "id": "task-7",
+      "name": "Deploy Sprint 12 release to production",
+      "owner": "team",
+      "deadline": "2026-07-03",
+      "priority": "Critical",
       "category": "General",
       "status": "Todo",
       "sourceEvidence": "Generated from project analysis",
@@ -50,62 +95,63 @@
   "risks": [
     {
       "id": "risk-1",
-      "name": "Third-party API instability threatens John's Wednesday API integration milestone",
+      "name": "API documentation is missing and is blocking Lisa's frontend completion ahead of Friday's production deploy",
       "severity": "High",
-      "description": "Third-party API instability threatens John's Wednesday API integration milestone",
-      "solution": "Pair John with the third-party API owner to add retries, timeouts and a circuit-breaker on the integration; build a mock/stub of the third-party API so integration work and testing can proceed even while the upstream is unstable; escalate to the API vendor for an ETA on stability before Wednesday's deliverable.",
+      "description": "API documentation is missing and is blocking Lisa's frontend completion ahead of Friday's production deploy",
+      "solution": "Assign a clear owner today (no owner is named in the standup) to produce the API specs from the live endpoints or recent commits within the next 24 hours so Lisa can finish the remaining 20% of frontend components before the Friday deploy.",
       "confidence": 90
     },
     {
       "id": "risk-2",
-      "name": "Testing environment is not ready ahead of Mary's Thursday frontend testing milestone",
+      "name": "Staging server is down, blocking end-to-end testing of the 3 critical bugs Alex found and the full release cut",
       "severity": "High",
-      "description": "Testing environment is not ready ahead of Mary's Thursday frontend testing milestone",
-      "solution": "Get a clear owner on the test environment today; verify provision of test accounts, seed data, CI pipeline and access credentials before Mary's Thursday hand-off; if the environment will not be ready in time, define a minimum-testable cut of the frontend that Mary's team can validate locally.",
+      "description": "Staging server is down, blocking end-to-end testing of the 3 critical bugs Alex found and the full release cut",
+      "solution": "Hand the staging outage to a named DevOps/infra owner today to restore service and confirm Alex can reproduce and verify fixes against it; gate the Friday production deploy on staging being green.",
       "confidence": 90
     },
     {
       "id": "risk-3",
-      "name": "Client approval on UI designs is still pending and could block Mary's frontend work",
+      "name": "Three critical bugs surfaced during the testing environment setup could derail the Friday production deploy",
+      "severity": "High",
+      "description": "Three critical bugs surfaced during the testing environment setup could derail the Friday production deploy",
+      "solution": "Triage the 3 critical bugs today with Alex, Sarah and Mike; treat Friday's deploy as conditional on all 3 being fixed and regression-tested on a clean staging environment.",
+      "confidence": 90
+    },
+    {
+      "id": "risk-4",
+      "name": "Friday production deployment depends on migration, frontend, bug fixes and API docs all converging in two days",
       "severity": "Medium",
-      "description": "Client approval on UI designs is still pending and could block Mary's frontend work",
-      "solution": "Sarah to chase the client reviewer for a decision today; in parallel, Mary should build against the proposed designs and abstract client-specific copy/imagery so only the approved layer needs to be swapped in once feedback arrives.",
+      "description": "Friday production deployment depends on migration, frontend, bug fixes and API docs all converging in two days",
+      "solution": "Hold a go/no-go review on Thursday with Sarah, Mike, Lisa and Alex; pre-define a minimum-release cut so a slip on one item (most likely the missing API docs) does not push the entire ship date.",
       "confidence": 90
     }
   ],
   "recommendations": [
     {
       "id": "rec-1",
-      "title": "Treat tomorrow's standup as a hard synchronization point: each owner (John, Mary, Alex) reports status and any blocker before the standup closes so Sarah can reallocate mid-week if needed.",
-      "description": "Treat tomorrow's standup as a hard synchronization point: each owner (John, Mary, Alex) reports status and any blocker before the standup closes so Sarah can reallocate mid-week if needed.",
+      "title": "Assign named owners today to the API docs and the staging server outage — both are currently unowned and both gate the Friday deploy.",
+      "description": "Assign named owners today to the API docs and the staging server outage — both are currently unowned and both gate the Friday deploy.",
       "icon": "lightbulb",
       "confidence": 90
     },
     {
       "id": "rec-2",
-      "title": "Escalate the third-party API issue today — it directly blocks John's Wednesday deadline, so a stability ETA or a working stub is needed within 24 hours.",
-      "description": "Escalate the third-party API issue today — it directly blocks John's Wednesday deadline, so a stability ETA or a working stub is needed within 24 hours.",
+      "title": "Hold a Thursday go/no-go deploy review with Sarah, Mike, Lisa and Alex; pre-agree a minimum-release cut in case API docs are still incomplete.",
+      "description": "Hold a Thursday go/no-go deploy review with Sarah, Mike, Lisa and Alex; pre-agree a minimum-release cut in case API docs are still incomplete.",
       "icon": "lightbulb",
       "confidence": 90
     },
     {
       "id": "rec-3",
-      "title": "Make environment readiness a daily checklist for Mary's team, not a one-time ask, until the Thursday testing hand-off is verified end-to-end.",
-      "description": "Make environment readiness a daily checklist for Mary's team, not a one-time ask, until the Thursday testing hand-off is verified end-to-end.",
+      "title": "Have Sarah and Alex pair on the 3 critical bugs to compress the fix/regression cycle before the Friday cut.",
+      "description": "Have Sarah and Alex pair on the 3 critical bugs to compress the fix/regression cycle before the Friday cut.",
       "icon": "lightbulb",
       "confidence": 90
     },
     {
       "id": "rec-4",
-      "title": "Sequence Alex's migration deployment after John and Mary land, so any schema changes match the API contract and the frontend's data expectations — roll back into a Friday-night window with a tested revert path.",
-      "description": "Sequence Alex's migration deployment after John and Mary land, so any schema changes match the API contract and the frontend's data expectations — roll back into a Friday-night window with a tested revert path.",
-      "icon": "lightbulb",
-      "confidence": 90
-    },
-    {
-      "id": "rec-5",
-      "title": "Push the client for an explicit UI-approval decision (or a written risk-acceptance) so Mary's work does not have to be rebuilt late in the cycle.",
-      "description": "Push the client for an explicit UI-approval decision (or a written risk-acceptance) so Mary's work does not have to be rebuilt late in the cycle.",
+      "title": "Lock down the production deploy plan and rollback procedure by end of today so Mike's migration and Friday's release do not race on the same day.",
+      "description": "Lock down the production deploy plan and rollback procedure by end of today so Mike's migration and Friday's release do not race on the same day.",
       "icon": "lightbulb",
       "confidence": 90
     }
