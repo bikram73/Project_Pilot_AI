@@ -25,9 +25,23 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     try {
       // 1. First attempt: Try Lemma workflow for comprehensive analysis
       console.log("[Express API /api/analyze] Attempting Lemma workflow for comprehensive analysis...");
-      const { analyze } = await import("../services/lemma");
-      const lemmaPayload = { text: text || "", file: file || null };
-      const result = await analyze(lemmaPayload);
+      const { runWorkflow } = await import("../services/lemma");
+      
+      // Transform payload to match Lemma workflow expectations
+      const lemmaPayload = {
+        source: "manual",
+        documents: [
+          {
+            title: file?.name || "Project Analysis Input",
+            content: text || "Project analysis request"
+          }
+        ]
+      };
+      
+      console.log("[Express API /api/analyze] Creating workflow...");
+      console.log("[Express API /api/analyze] Payload:", JSON.stringify(lemmaPayload, null, 2));
+      const result = await runWorkflow(lemmaPayload);
+      console.log("[Express API /api/analyze] Workflow completed successfully:", JSON.stringify(result, null, 2));
 
       // Mark as Lemma analyzed
       result._analysisMode = "lemma";

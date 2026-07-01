@@ -472,49 +472,69 @@ export async function runWorkflow(payload: {
   }
 
   console.log(`[Lemma Workflow Submitting] Submitting inputs to node: ${activeWait.node_id}`);
+  console.log(`[Lemma Workflow Submitting] Input payload:`, JSON.stringify(inputs, null, 2));
   await client.workflows.runs.submitForm(runId, {
     node_id: activeWait.node_id,
     inputs,
   });
+  console.log(`[Lemma Workflow Submitted] Input submission completed successfully`);
 
   // 3. Poll run until completed (optimized for serverless)
   console.log(`[Lemma Workflow Polling] Polling run status for ID: ${runId}`);
-  const maxAttempts = 40; // 40 seconds maximum for serverless compatibility
+  const maxAttempts = 60; // Increased to 60 seconds for better reliability
   let attempts = 0;
   let finalRunState: WorkflowRunResponse | null = null;
 
   while (attempts < maxAttempts) {
+    console.log(`[Lemma Workflow Poll ${attempts}] Checking status for run ${runId}...`);
     const pollState = await client.workflows.runs.get(runId);
     const isTerminal = isTerminalFlowStatus(pollState.status);
     const normalized = normalizeRunStatus(pollState.status);
 
-    console.log(`[Lemma Workflow Poll ${attempts}] Status is: ${normalized}`);
+    console.log(`[Lemma Workflow Poll ${attempts}] Status: ${normalized}, Is Terminal: ${isTerminal}`);
 
     if (isTerminal) {
       if (normalized === "COMPLETED" || normalized === "SUCCEEDED") {
+        console.log(`[Lemma Workflow Poll ${attempts}] Workflow completed successfully!`);
         finalRunState = pollState;
         break;
       } else {
+        console.error(`[Lemma Workflow Poll ${attempts}] Workflow failed with status: ${normalized}`);
         throw new Error(`Workflow run failed with terminal status: ${normalized}. Error: ${pollState.error || "Unknown"}`);
       }
     }
 
+    console.log(`[Lemma Workflow Poll ${attempts}] Workflow still running, waiting 1 second...`);
     await new Promise((resolve) => setTimeout(resolve, 1000)); // Poll every 1 second
     attempts++;
   }
 
   if (!finalRunState) {
     // For serverless environments, save the run ID and throw a specific error
-    console.warn(`[Lemma Workflow] Polling timed out after ${maxAttempts}s for run ${runId}. Workflow may still be completing.`);
-    throw new Error(`LEMMA_TIMEOUT:${runId}`);
+    console.error(`[Lemma Workflow Timeout] Polling timed out after ${maxAttempts}s for run ${runId}. Workflow may still be completing.`);
+    
+    // Check if we can get a final status
+    try {
+      const finalCheck = await client.workflows.runs.get(runId);
+      console.log(`[Lemma Workflow Timeout] Final status check: ${normalizeRunStatus(finalCheck.status)}`);
+    } catch (statusError) {
+      console.error(`[Lemma Workflow Timeout] Could not get final status:`, statusError);
+    }
+    
+    throw new Error(`LEMMA_TIMEOUT:${runId} - Workflow polling timed out after ${maxAttempts} seconds`);
   }
 
   const executionTime = Date.now() - startTime;
   console.log(`[Lemma Workflow Success] Run completed in ${executionTime}ms. Run ID: ${runId}`);
 
   // 4. Extract output JSON
+  console.log(`[Lemma Workflow Output] Extracting output from completed run...`);
   const output = extractOutput(finalRunState);
+  console.log(`[Lemma Workflow Output] Raw extracted output:`, JSON.stringify(output, null, 2));
+  
   const transformedOutput = transformLemmaOutput(output);
+  console.log(`[Lemma Workflow Output] Transformed output:`, JSON.stringify(transformedOutput, null, 2));
+  
   return transformedOutput;
 }
 

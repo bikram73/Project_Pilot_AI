@@ -1,105 +1,215 @@
 {
-  "projectTitle": "Hiring Campaign",
-  "projectSummary": "A structured recruitment initiative focused on posting job openings, conducting technical interviews, and extending offer letters to selected candidates by the end of the current month.",
-  "estimatedCompletion": "End of the month",
+  "projectTitle": "Project Analysis",
+  "projectSummary": "PRD v2.1 outlines a Social Media Integration feature (priority: High, owner: Development Team, timeline: 3 sprints / 6 weeks) bundling three user stories — share content to Twitter, log in with Google/Facebook, and an admin moderation workflow for shared content — on top of an OAuth 2.0 integration backbone, a 100 req/hour rate limit, and a third-party content moderation API. The PRD explicitly names API rate limits and security compliance as known risks.",
+  "estimatedCompletion": "TBD",
   "aiConfidenceOverall": 95,
-  "blockedTasksCount": 2,
-  "dependenciesCount": 2,
+  "blockedTasksCount": 0,
+  "dependenciesCount": 0,
   "objectives": [
-    "Publish job openings to attract candidates",
-    "Conduct structured technical interviews",
-    "Extend formal offer letters to selected candidates before month-end"
+    "Ship share-to-Twitter for user-generated content within the 6-week window",
+    "Ship Google and Facebook social login on top of OAuth 2.0",
+    "Deliver an admin moderation workflow for shared content powered by the moderation API",
+    "Enforce a 100 requests/hour per-user rate limit across the social integration surface",
+    "Pass a security/compliance review covering OAuth and social-data handling before launch",
+    "Deliver all three user stories within the 3-sprint (6-week) timeline"
   ],
-  "keyDeliverables": [
-    "Active job postings",
-    "Completed technical interview evaluations",
-    "Dispatched offer letters"
-  ],
+  "keyDeliverables": [],
   "tasks": [
     {
       "id": "task-1",
-      "name": "Post job openings",
-      "owner": "HR",
-      "deadline": "This week",
+      "name": "Implement OAuth 2.0 integration layer (token store, consent UX, refresh handling)",
+      "owner": "Development Team",
+      "deadline": "TBD",
       "priority": "High",
-      "category": "Operations",
+      "category": "General",
       "status": "Todo",
-      "sourceEvidence": "HR posts job openings this week.",
-      "confidence": 95,
-      "dependencies": [],
-      "missingInfo": "Specific job boards and target roles are not listed.",
-      "suggestedAction": "Define the target roles and select the primary job boards (e.g., LinkedIn, Indeed) for posting."
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
     },
     {
       "id": "task-2",
-      "name": "Begin technical interviews",
-      "owner": "Technical Team",
-      "deadline": "Monday",
+      "name": "Implement Google login via OAuth 2.0 (user story: login with Google)",
+      "owner": "Development Team",
+      "deadline": "TBD",
       "priority": "High",
-      "category": "Operations",
+      "category": "General",
       "status": "Todo",
-      "sourceEvidence": "Technical interviews begin Monday.",
-      "confidence": 90,
-      "dependencies": [
-        "Post job openings"
-      ],
-      "missingInfo": "No specific interviewers or candidate shortlist defined.",
-      "suggestedAction": "Assign technical interviewers and prepare the interview evaluation rubrics."
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
     },
     {
       "id": "task-3",
-      "name": "Send offer letters",
-      "owner": "HR",
-      "deadline": "Month-end",
+      "name": "Implement Facebook login via OAuth 2.0 (user story: login with Facebook)",
+      "owner": "Development Team",
+      "deadline": "TBD",
       "priority": "High",
-      "category": "Legal",
+      "category": "General",
       "status": "Todo",
-      "sourceEvidence": "Offer letters should be sent before month-end.",
-      "confidence": 95,
-      "dependencies": [
-        "Begin technical interviews"
-      ],
-      "missingInfo": "Approved salary bands and offer letter templates are not specified.",
-      "suggestedAction": "Pre-approve compensation packages and draft standard offer letter templates to avoid delays."
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
+    },
+    {
+      "id": "task-4",
+      "name": "Build share-to-Twitter feature for user-generated content",
+      "owner": "Development Team",
+      "deadline": "TBD",
+      "priority": "High",
+      "category": "General",
+      "status": "Todo",
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
+    },
+    {
+      "id": "task-5",
+      "name": "Integrate third-party content moderation API into the share pipeline",
+      "owner": "Development Team",
+      "deadline": "TBD",
+      "priority": "High",
+      "category": "General",
+      "status": "Todo",
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
+    },
+    {
+      "id": "task-6",
+      "name": "Build admin moderation dashboard/workflow for shared content",
+      "owner": "Development Team",
+      "deadline": "TBD",
+      "priority": "Medium",
+      "category": "General",
+      "status": "Todo",
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
+    },
+    {
+      "id": "task-7",
+      "name": "Implement 100 requests/hour rate limiting across the social integration surface",
+      "owner": "Development Team",
+      "deadline": "TBD",
+      "priority": "High",
+      "category": "General",
+      "status": "Todo",
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
+    },
+    {
+      "id": "task-8",
+      "name": "Run security/compliance review covering OAuth tokens, social data, and privacy",
+      "owner": "Development Team",
+      "deadline": "TBD",
+      "priority": "Critical",
+      "category": "General",
+      "status": "Todo",
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
+    },
+    {
+      "id": "task-9",
+      "name": "Define acceptance criteria and MVP cut for each of the three user stories",
+      "owner": "Development Team",
+      "deadline": "TBD",
+      "priority": "Medium",
+      "category": "General",
+      "status": "Todo",
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
     }
   ],
   "risks": [
     {
       "id": "risk-1",
-      "name": "Low candidate response rate",
+      "name": "Social platform API rate limits could throttle user sharing and login volume",
+      "severity": "Medium",
+      "description": "Social platform API rate limits could throttle user sharing and login volume",
+      "solution": "Implement the 100 req/hour limit on our side (token-bucket per user/IP), add automated alerting when upstream providers (Twitter, Google, Facebook) return 429s, and hold a vendor-quota review per provider before each sprint so we can request higher caps in advance.",
+      "confidence": 90
+    },
+    {
+      "id": "risk-2",
+      "name": "Security and compliance gaps (OAuth token handling, social-data privacy) could block launch",
       "severity": "High",
-      "description": "Fewer applications than expected may delay the interview schedule and push back the target offer date.",
-      "solution": "Promote openings on LinkedIn and university portals to increase reach and attract qualified applicants.",
-      "confidence": 95
+      "description": "Security and compliance gaps (OAuth token handling, social-data privacy) could block launch",
+      "solution": "Schedule a security/compliance review in sprint 1, use a vetted OAuth 2.0 library, encrypt tokens at rest, run a threat model for social-data flows (GDPR/CCPA), and gate the final ship on the review's sign-off.",
+      "confidence": 90
+    },
+    {
+      "id": "risk-3",
+      "name": "Twitter, Google, or Facebook API policy or SDK changes could silently break integration",
+      "severity": "Medium",
+      "description": "Twitter, Google, or Facebook API policy or SDK changes could silently break integration",
+      "solution": "Pin SDK versions, add a vendor-changelog watch, wrap third-party calls in an abstraction layer so a provider migration only touches one module, and add contract tests against the live APIs in CI to catch breakage early.",
+      "confidence": 90
+    },
+    {
+      "id": "risk-4",
+      "name": "Content moderation API may produce false positives or false negatives, harming UX",
+      "severity": "Medium",
+      "description": "Content moderation API may produce false positives or false negatives, harming UX",
+      "solution": "Tune moderation thresholds from real labelled samples before launch, surface an admin override on the moderation dashboard, log all moderation decisions for review, and design the user-facing UX so borderline content is held rather than auto-blocked.",
+      "confidence": 90
+    },
+    {
+      "id": "risk-5",
+      "name": "6-week (3 sprint) timeline is tight for three user stories plus OAuth, rate limiting, and a moderation API",
+      "severity": "Medium",
+      "description": "6-week (3 sprint) timeline is tight for three user stories plus OAuth, rate limiting, and a moderation API",
+      "solution": "Pre-agree an MVP cut per sub-feature (share, login, moderation) per sprint; front-load the OAuth 2.0 spike so platform work unblocks parallel streams; track capacity daily and lock a Friday go/no-go before the final sprint.",
+      "confidence": 90
+    },
+    {
+      "id": "risk-6",
+      "name": "No named individual owner (PRD names only 'Development Team') creates an accountability gap",
+      "severity": "Low",
+      "description": "No named individual owner (PRD names only 'Development Team') creates an accountability gap",
+      "solution": "Assign a single DRI per workstream (Twitter share, Google login, Facebook login, moderation, rate limiting, security review) before sprint 1 kickoff so each stream has a clear escalation path.",
+      "confidence": 90
     }
   ],
   "recommendations": [
     {
       "id": "rec-1",
-      "title": "Promote openings on LinkedIn and university portals",
-      "description": "Proactively share job postings on professional networks and academic job boards to maximize candidate sourcing.",
-      "icon": "group_add",
-      "confidence": 95
-    }
-  ],
-  "missingInfoAlerts": [
-    {
-      "id": "alert-1",
-      "targetType": "project",
-      "targetName": "Hiring Campaign",
-      "severity": "Warning",
-      "description": "The specific job roles, descriptions, and target headcount are missing from the project notes.",
-      "suggestedAction": "Document the exact roles to be hired and their respective job descriptions immediately."
+      "title": "Front-load an OAuth 2.0 spike covering Google, Facebook, and Twitter in sprint 1 so token storage, refresh, and consent UX are de-risked before downstream work.",
+      "description": "Front-load an OAuth 2.0 spike covering Google, Facebook, and Twitter in sprint 1 so token storage, refresh, and consent UX are de-risked before downstream work.",
+      "icon": "lightbulb",
+      "confidence": 90
     },
     {
-      "id": "alert-2",
-      "targetType": "task",
-      "targetName": "Begin technical interviews",
-      "severity": "Info",
-      "description": "No technical team lead or specific interviewers have been assigned to conduct the evaluations.",
-      "suggestedAction": "Designate technical interviewers and block their calendars for the upcoming Monday."
+      "id": "rec-2",
+      "title": "Pre-agree an MVP cut for each sub-feature (share, login, moderation) per sprint so a slip on one stream does not cascade across the 6-week window.",
+      "description": "Pre-agree an MVP cut for each sub-feature (share, login, moderation) per sprint so a slip on one stream does not cascade across the 6-week window.",
+      "icon": "lightbulb",
+      "confidence": 90
+    },
+    {
+      "id": "rec-3",
+      "title": "Lock the content moderation API contract and admin UX in sprint 1 so the moderation dashboard does not need to be rebuilt after backend changes.",
+      "description": "Lock the content moderation API contract and admin UX in sprint 1 so the moderation dashboard does not need to be rebuilt after backend changes.",
+      "icon": "lightbulb",
+      "confidence": 90
+    },
+    {
+      "id": "rec-4",
+      "title": "Add a load test for the 100 req/hour rate limiter early in QA, not at the end, and instrument per-user counters so abuse is visible in production.",
+      "description": "Add a load test for the 100 req/hour rate limiter early in QA, not at the end, and instrument per-user counters so abuse is visible in production.",
+      "icon": "lightbulb",
+      "confidence": 90
+    },
+    {
+      "id": "rec-5",
+      "title": "Schedule the security/compliance review before the final sprint so any OAuth or data-handling remediation can fit inside the timeline.",
+      "description": "Schedule the security/compliance review before the final sprint so any OAuth or data-handling remediation can fit inside the timeline.",
+      "icon": "lightbulb",
+      "confidence": 90
+    },
+    {
+      "id": "rec-6",
+      "title": "Assign a named DRI per workstream under 'Development Team' before sprint 1 so each stream has a clear escalation path.",
+      "description": "Assign a named DRI per workstream under 'Development Team' before sprint 1 so each stream has a clear escalation path.",
+      "icon": "lightbulb",
+      "confidence": 90
     }
   ],
-  "_analysisMode": "gemini",
-  "_deploymentMode": "fallback"
+  "missingInfoAlerts": [],
+  "_analysisMode": "lemma",
+  "_deploymentMode": "development"
 }
