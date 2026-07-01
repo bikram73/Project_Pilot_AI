@@ -10,11 +10,13 @@ Transform your unstructured meeting notes, transcripts, requirements documents, 
 * **Enhanced Sample Data:** 6 realistic project scenarios for instant testing
 * **Removed Complexity:** Eliminated experimental features (URL import, voice recording, image analysis) for better user experience
 
-### 🔄 Robust Lemma Integration 
+### 🔄 Robust Lemma Integration with Gemini Fallback
 * **Production-Ready Workflow:** Full end-to-end Lemma workflow execution with polling
+* **Intelligent Fallback System:** Automatic Gemini AI fallback when Lemma is unavailable
 * **Session Management:** Automatic token refresh and authentication handling
 * **Windows Compatibility:** SSL verification bypass for Windows development environments
-* **Error Recovery:** Comprehensive error handling and connection resilience
+* **Error Recovery:** Comprehensive error handling and graceful service degradation
+* **Dual-Mode Operation:** Seamlessly switches between Lemma and Gemini analysis engines
 
 ---
 
@@ -38,15 +40,13 @@ ProjectPilot AI features an elegant **Deep Slate & Vibrant Blue** aesthetic with
   - Sprint Retrospectives with improvement plans
 * **Drag-and-Drop Interface:** Intuitive file upload with visual feedback
 
-### 🧠 2. Lemma-Powered Analysis Engine
-* **Live Workflow Execution:** Real-time submission to Lemma's project-analyzer agent
+### 🧠 2. Dual-Engine Analysis System
+* **Primary Engine:** Lemma's project-analyzer workflow with live agent execution
+* **Fallback Engine:** Google Gemini 1.5 Flash for offline and backup analysis
 * **Asynchronous Processing:** Fire-and-forget architecture with intelligent polling
-* **Structured Data Extraction:** Automatically identifies:
-  - **Tasks** with owners and deadlines
-  - **Objectives** and key goals
-  - **Risks** and potential blockers  
-  - **Strategic Recommendations**
-* **Data Transformation:** Seamless conversion between Lemma workflow output and dashboard format
+* **Smart Mode Detection:** Automatically selects optimal analysis engine
+* **Structured Data Extraction:** Consistently identifies tasks, objectives, risks, and recommendations regardless of engine
+* **Data Transformation:** Seamless conversion between different AI engine outputs to unified format
 
 ### 📊 3. Interactive Project Dashboard
 * **Real-Time Statistics:** Live counters for tasks, risks, deadlines, and priorities
@@ -56,37 +56,50 @@ ProjectPilot AI features an elegant **Deep Slate & Vibrant Blue** aesthetic with
 * **Progress Tracking:** Milestone visualization and completion metrics
 * **Export Capabilities:** Persistent results saved to `latest_analysis.json`
 
-### 💬 4. AI Chat Assistant (Experimental)
-* **Lemma Chat Integration:** Direct connection to project-analyzer chat agent
-* **Active Mode Display:** Clear indicator showing `● Lemma Mode Active`
-* **Context-Aware Responses:** Project-specific insights and recommendations
-* **Fallback Architecture:** Graceful degradation when Lemma services are unavailable
+### 💬 4. Dual-Mode AI Chat Assistant
+* **Primary Mode:** Lemma chat agent with project-specific context and reasoning
+* **Fallback Mode:** Google Gemini conversational AI with project data awareness  
+* **Active Mode Display:** Clear visual indicators (`● Lemma Mode Active` or `● Powered by Gemini (Fallback)`)
+* **Context-Aware Responses:** Project-specific insights and recommendations from both engines
+* **Seamless Switching:** Automatic fallback without user intervention
+* **Conversation History:** Maintains chat context across mode switches
 
 ---
 
 ## 🏗️ System Architecture
 
-### 🔄 Lemma Workflow Integration
-The application is built around a robust Lemma workflow integration:
-
+### 🔄 Dual-Engine Analysis Flow
 ```text
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   User Input    │    │  Express Backend │    │ Lemma Workflow  │
-│  (File/Text)    │───▶│    Proxy API     │───▶│    Execution    │
+│   User Input    │    │  Express Backend │    │ Primary: Lemma  │
+│  (File/Text)    │───▶│    Proxy API     │───▶│   Workflow      │
 └─────────────────┘    └──────────────────┘    └─────────────────┘
                                 │                        │
                                 ▼                        ▼
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Dashboard     │◄───│  Polling System  │◄───│   Results &     │
-│   Display       │    │   (3s intervals) │    │  Persistence    │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
+                       ┌──────────────────┐    ┌─────────────────┐
+                       │  Fallback Check  │    │   Success Path  │
+                       │ (If Lemma Fails) │    │   Dashboard     │
+                       └──────────────────┘    └─────────────────┘
+                                │                        
+                                ▼                        
+                       ┌──────────────────┐              
+                       │ Gemini Fallback  │              
+                       │   Analysis API   │              
+                       └──────────────────┘              
+                                │                        
+                                ▼                        
+                       ┌──────────────────┐              
+                       │   Dashboard      │              
+                       │ (Fallback Mode)  │              
+                       └──────────────────┘              
 ```
 
 ### 🔧 Backend Services Architecture
-* **Express Proxy Server:** Handles Lemma authentication and API routing
-* **Session Management:** Automatic token refresh with Windows SSL compatibility
-* **Fire-and-Forget Processing:** Asynchronous workflow execution with polling
-* **Result Persistence:** Automatic saving to `latest_analysis.json` for data recovery
+* **Express Proxy Server:** Handles authentication and API routing for both Lemma and Gemini
+* **Session Management:** Automatic token refresh with Windows SSL compatibility  
+* **Intelligent Routing:** Automatically routes requests between Lemma and Gemini based on availability
+* **Fire-and-Forget Processing:** Asynchronous workflow execution with polling for Lemma
+* **Result Persistence:** Automatic saving to `latest_analysis.json` with mode tracking
 
 ### 💾 Data Flow & Processing
 1. **Input Processing:** Files converted to base64, text sanitized and validated
@@ -130,7 +143,8 @@ The application is built around a robust Lemma workflow integration:
 
 ### ⚙️ Backend & Integration
 * **Express.js** - Lightweight API server with CORS and error handling
-* **Lemma SDK** - Professional workflow orchestration and chat integration
+* **Lemma SDK** - Primary workflow orchestration and chat integration
+* **Google Gemini AI** - Fallback analysis engine and conversational AI
 * **Node.js** - Server-side JavaScript runtime with modern ES modules
 
 ### 🔧 Development Tools
@@ -212,9 +226,18 @@ LEMMA_PROXY_ALLOWED_ORIGIN=http://localhost:5173
 # Server Configuration  
 PORT=4001
 
-# Optional: Gemini API (for chat fallback)
+# Google Gemini API Configuration (Fallback Engine)
 GEMINI_API_KEY=your_gemini_api_key_here
+
+# Windows Development (if needed)
+NODE_TLS_REJECT_UNAUTHORIZED=0
 ```
+
+**Getting your Gemini API Key:**
+1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Sign in with your Google account
+3. Click "Create API Key" 
+4. Copy the key to your `.env` file
 
 ### 4️⃣ Development Server
 ```bash
@@ -282,10 +305,47 @@ lemma auth print-token    # Get new token
 - **Export Results:** Data automatically saved to `latest_analysis.json`
 
 ### 💬 AI Chat Assistant
-- **Lemma Integration:** Direct connection to project-analyzer chat
-- **Context Aware:** Understands your specific project data
-- **Mode Indicator:** Shows active connection status
-- **Fallback Support:** Graceful degradation when services unavailable
+- **Dual Mode Operation:** Lemma chat agent or Gemini conversational AI
+- **Context Aware:** Understands your specific project data in both modes
+- **Mode Indicator:** Clear visual status (`● Lemma Mode Active` or `● Powered by Gemini (Fallback)`)
+- **Automatic Fallback:** Seamless switching when primary service unavailable
+
+---
+
+## 🧪 Testing Fallback System
+
+### Manual Testing
+To test the Gemini fallback system:
+
+```bash
+# Test with Lemma disabled (simulate service unavailable)
+# Temporarily rename or remove LEMMA_SESSION_TOKEN in .env
+npm run dev
+
+# Run analysis - should automatically use Gemini fallback
+# Check dashboard for "● Powered by Gemini (Fallback)" indicator
+```
+
+### API Testing
+```bash
+# Test Gemini integration directly
+node test-gemini-fallback.js
+
+# Test analysis endpoints
+curl -X POST http://localhost:4001/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"text":"Test meeting with John completing API by Friday"}'
+
+# Test chat endpoints  
+curl -X POST http://localhost:4001/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message":"What are the main tasks?"}'
+```
+
+### Expected Behavior
+- **Lemma Available:** Uses Lemma workflow, shows "● Lemma Mode Active"
+- **Lemma Unavailable:** Falls back to Gemini, shows "● Powered by Gemini (Fallback)"
+- **Both Unavailable:** Shows offline mode with local parsing
 
 ---
 
@@ -371,24 +431,6 @@ CMD ["npm", "start"]
 
 ---
 
-## 📄 License & Acknowledgments
-
-### License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-### Acknowledgments
-- **Lemma Team** - For the powerful workflow orchestration platform
-- **React Team** - For the excellent frontend framework  
-- **Tailwind CSS** - For the utility-first styling approach
-- **Framer Motion** - For smooth animations and interactions
-
-### Support
-- 📧 Email: support@projectpilot.ai
-- 🐛 Issues: [GitHub Issues](https://github.com/your-repo/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/your-repo/discussions)
-
----
-
 ## 🔒 Security & Privacy
 
 ### Data Handling
@@ -411,4 +453,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-*Built with ❤️ using React, TypeScript, and Lemma SDK*
+## 📄 License & Acknowledgments
+
+### License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
