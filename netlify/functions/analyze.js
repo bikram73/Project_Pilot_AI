@@ -12,24 +12,34 @@ async function runLemmaWorkflowDirect(payload) {
   const sessionToken = process.env.LEMMA_SESSION_TOKEN;
   const workflowName = process.env.LEMMA_WORKFLOW || "project-analysis-workflow";
 
+  console.log(`[Netlify Lemma] Environment check:`, {
+    apiUrl,
+    podId: podId ? 'SET' : 'MISSING',
+    sessionToken: sessionToken ? 'SET' : 'MISSING',
+    workflowName
+  });
+
   if (!podId || !sessionToken) {
     throw new Error("LEMMA_POD_ID and LEMMA_SESSION_TOKEN are required for Lemma integration");
   }
 
   console.log(`[Netlify Lemma] Starting workflow: ${workflowName}`);
 
-  // Helper function for HTTPS requests
+  // Helper function for HTTPS requests with better error handling
   const makeRequest = (url, options, postData) => {
     return new Promise((resolve, reject) => {
+      console.log(`[Netlify Lemma] Making request to: ${url}`);
+      
       const urlObj = new URL(url);
       const requestOptions = {
         hostname: urlObj.hostname,
         port: urlObj.port || 443,
-        path: urlObj.pathname,
+        path: urlObj.pathname + (urlObj.search || ''),
         method: options.method || 'GET',
         headers: {
           'Authorization': `Bearer ${sessionToken}`,
           'Content-Type': 'application/json',
+          'User-Agent': 'ProjectPilot-Netlify/1.0',
           ...options.headers
         },
         rejectUnauthorized: false // For development SSL issues
@@ -39,86 +49,120 @@ async function runLemmaWorkflowDirect(payload) {
         requestOptions.headers['Content-Length'] = Buffer.byteLength(postData);
       }
 
+      console.log(`[Netlify Lemma] Request options:`, {
+        hostname: requestOptions.hostname,
+        path: requestOptions.path,
+        method: requestOptions.method,
+        headers: { ...requestOptions.headers, Authorization: 'Bearer [REDACTED]' }
+      });
+
       const req = https.request(requestOptions, (res) => {
         let data = '';
         res.on('data', (chunk) => data += chunk);
         res.on('end', () => {
+          console.log(`[Netlify Lemma] Response ${res.statusCode}:`, data.substring(0, 200));
+          
           try {
             const result = data ? JSON.parse(data) : {};
             if (res.statusCode >= 200 && res.statusCode < 300) {
               resolve(result);
             } else {
+              console.error(`[Netlify Lemma] HTTP Error ${res.statusCode}:`, data);
               reject(new Error(`HTTP ${res.statusCode}: ${data}`));
             }
           } catch (parseError) {
+            console.error(`[Netlify Lemma] Parse error:`, parseError.message);
             reject(new Error(`Parse error: ${data}`));
           }
         });
       });
 
-      req.on('error', reject);
-      req.setTimeout(30000, () => reject(new Error('Request timeout')));
+      req.on('error', (error) => {
+        console.error(`[Netlify Lemma] Request error:`, error.message);
+        reject(error);
+      });
+      
+      req.setTimeout(30000, () => {
+        console.error(`[Netlify Lemma] Request timeout`);
+        reject(new Error('Request timeout'));
+      });
       
       if (postData) {
+        console.log(`[Netlify Lemma] Sending data:`, postData.substring(0, 200));
         req.write(postData);
       }
       req.end();
     });
   };
 
-  // 1. Create workflow run
-  const createUrl = `${apiUrl}/pods/${podId}/workflows/${workflowName}/runs`;
-  const run = await makeRequest(createUrl, { method: 'POST' });
-  const runId = run.id;
-  console.log(`[Netlify Lemma] Created run: ${runId}`);
+  try {
+    // 1. Create workflow run
+    const createUrl = `${apiUrl}/pods/${podId}/workflows/${workflowName}/runs`;
+    console.log(`[Netlify Lemma] Step 1: Creating workflow run`);
+    const run = await makeRequest(createUrl, { method: 'POST' });
+    const runId = run.id;
+    console.log(`[Netlify Lemma] Created run: ${runId}`);
 
-  if (!run.active_wait) {
-    throw new Error("Workflow did not open with input form");
-  }
+    if (!run.active_wait) {
+      console.error(`[Netlify Lemma] No active_wait in run:`, JSON.stringify(run, null, 2));
+      throw new Error("Workflow did not open with input form");
+    }
 
-  // 2. Submit inputs
-  const inputs = {
-    source: "manual",
-    documents: [
-      {
-        title: payload.file?.name || "Project Analysis Input",
-        content: payload.text || "Project analysis request"
+    // 2. Submit inputs
+    const inputs = {
+      source: "manual",
+      documents: [
+        {
+          title: payload.file?.name || "Project Analysis Input",
+          content: payload.text || "Project analysis request"
+        }
+      ]
+    };
+
+    console.log(`[Netlify Lemma] Step 2: Submitting inputs`);
+    const submitUrl = `${apiUrl}/pods/${podId}/workflows/runs/${runId}/submit-form`;
+    const submitData = JSON.stringify({
+      node_id: run.active_wait.node_id,
+      inputs
+    });
+
+    await makeRequest(submitUrl, { method: 'POST' }, submitData);
+    console.log(`[Netlify Lemma] Input submitted successfully`);
+
+    // 3. Poll for completion (shorter timeout for serverless)
+    console.log(`[Netlify Lemma] Step 3: Polling for completion`);
+    const maxAttempts = 15; // 15 seconds for Netlify to avoid timeout
+    let attempts = 0;
+    const pollUrl = `${apiUrl}/pods/${podId}/workflows/runs/${runId}`;
+
+    while (attempts < maxAttempts) {
+      console.log(`[Netlify Lemma] Poll attempt ${attempts}/${maxAttempts}`);
+      const runState = await makeRequest(pollUrl, { method: 'GET' });
+      console.log(`[Netlify Lemma] Status: ${runState.status}`);
+
+      if (runState.status === 'completed' || runState.status === 'succeeded') {
+        console.log(`[Netlify Lemma] Workflow completed successfully!`);
+        const result = transformLemmaOutput(runState.execution_context || {});
+        console.log(`[Netlify Lemma] Transformed result:`, JSON.stringify(result, null, 2).substring(0, 300));
+        return result;
       }
-    ]
-  };
 
-  const submitUrl = `${apiUrl}/pods/${podId}/workflows/runs/${runId}/submit-form`;
-  const submitData = JSON.stringify({
-    node_id: run.active_wait.node_id,
-    inputs
-  });
+      if (runState.status === 'failed' || runState.status === 'error') {
+        console.error(`[Netlify Lemma] Workflow failed:`, runState.error);
+        throw new Error(`Workflow failed: ${runState.error || 'Unknown error'}`);
+      }
 
-  await makeRequest(submitUrl, { method: 'POST' }, submitData);
-  console.log(`[Netlify Lemma] Input submitted`);
-
-  // 3. Poll for completion (shorter timeout for serverless)
-  const maxAttempts = 20; // 20 seconds for Netlify
-  let attempts = 0;
-  const pollUrl = `${apiUrl}/pods/${podId}/workflows/runs/${runId}`;
-
-  while (attempts < maxAttempts) {
-    const runState = await makeRequest(pollUrl, { method: 'GET' });
-    console.log(`[Netlify Lemma] Poll ${attempts}: ${runState.status}`);
-
-    if (runState.status === 'completed' || runState.status === 'succeeded') {
-      console.log(`[Netlify Lemma] Workflow completed!`);
-      return transformLemmaOutput(runState.execution_context || {});
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      attempts++;
     }
 
-    if (runState.status === 'failed' || runState.status === 'error') {
-      throw new Error(`Workflow failed: ${runState.error || 'Unknown error'}`);
-    }
+    console.warn(`[Netlify Lemma] Workflow timed out after ${maxAttempts} seconds`);
+    throw new Error(`Lemma workflow timed out after ${maxAttempts} seconds`);
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    attempts++;
+  } catch (error) {
+    console.error(`[Netlify Lemma] Workflow execution failed:`, error.message);
+    throw error;
   }
-
-  throw new Error(`Lemma workflow timed out after ${maxAttempts} seconds`);
 }
 
 function transformLemmaOutput(lemmaData) {
@@ -345,6 +389,12 @@ exports.handler = async (event, context) => {
       try {
         // Try Lemma first (with direct API approach)
         console.log("[Netlify Function] Attempting Lemma workflow...");
+        console.log("[Netlify Function] Lemma config check:", {
+          podId: process.env.LEMMA_POD_ID ? 'SET' : 'MISSING',
+          sessionToken: process.env.LEMMA_SESSION_TOKEN ? 'SET' : 'MISSING',
+          tokenLength: process.env.LEMMA_SESSION_TOKEN?.length || 0
+        });
+        
         const lemmaPayload = { text: text || "", file: file || null };
         const result = await runLemmaWorkflowDirect(lemmaPayload);
 
@@ -367,7 +417,8 @@ exports.handler = async (event, context) => {
         };
 
       } catch (lemmaError) {
-        console.warn(`[Netlify Function] Lemma failed, using Gemini fallback:`, lemmaError.message);
+        console.error(`[Netlify Function] Lemma failed:`, lemmaError.message);
+        console.error(`[Netlify Function] Full Lemma error:`, lemmaError);
 
         // Fallback to Gemini
         console.log("[Netlify Function] Using Gemini fallback...");
