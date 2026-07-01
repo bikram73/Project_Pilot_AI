@@ -8,6 +8,7 @@ import {
 } from "lemma-sdk";
 import fs from "fs";
 import path from "path";
+import https from "https";
 
 const PERSIST_FILE = path.join(process.cwd(), "latest_analysis.json");
 
@@ -428,8 +429,171 @@ function extractOutput(run: WorkflowRunResponse): any {
 }
 
 /**
- * Runs the full server-side Lemma Workflow run, input submission, and polling.
+ * Alternative workflow execution using direct REST API calls (fallback if SDK has auth issues)
  */
+export async function runWorkflowDirectAPI(payload: {
+  source?: string;
+  documents?: Array<{ title: string; content: string }>;
+  text?: string;
+  file?: { name: string; base64: string; mimeType: string } | null;
+}): Promise<any> {
+  const apiUrl = process.env.LEMMA_API_URL || "https://api.lemma.work";
+  const podId = process.env.LEMMA_POD_ID || "019f0d4a-33ad-75da-bc5d-43561cba9491";
+  const sessionToken = process.env.LEMMA_SESSION_TOKEN;
+  const workflowName = process.env.LEMMA_WORKFLOW || "project-analysis-workflow";
+
+  if (!sessionToken) {
+    throw new Error("LEMMA_SESSION_TOKEN environment variable is required");
+  }
+
+  console.log(`[Lemma Direct API] Starting workflow: ${workflowName}`);
+
+  // Helper function for HTTPS requests
+  const makeRequest = (url: string, options: any, postData?: string): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      const urlObj = new URL(url);
+      const requestOptions = {
+        hostname: urlObj.hostname,
+        port: urlObj.port || 443,
+        path: urlObj.pathname,
+        method: options.method || 'GET',
+        headers: {
+          'Authorization': `Bearer ${sessionToken}`,
+          'Content-Type': 'application/json',
+          ...options.headers
+        },
+        rejectUnauthorized: process.env.NODE_TLS_REJECT_UNAUTHORIZED !== '0'
+      };
+
+      if (postData) {
+        requestOptions.headers['Content-Length'] = Buffer.byteLength(postData);
+      }
+
+      const req = https.request(requestOptions, (res) => {
+        let data = '';
+        res.on('data', (chunk) => data += chunk);
+        res.on('end', () => {
+          try {
+            const result = data ? JSON.parse(data) : {};
+            if (res.statusCode >= 200 && res.statusCode < 300) {
+              resolve(result);
+            } else {
+              reject(new Error(`HTTP ${res.statusCode}: ${data}`));
+            }
+          } catch (parseError) {
+            reject(new Error(`Parse error: ${data}`));
+          }
+        });
+      });
+
+      req.on('error', reject);
+      
+      if (postData) {
+        req.write(postData);
+      }
+      req.end();
+    });
+  };
+
+  // 1. Create workflow run
+  const createUrl = `${apiUrl}/pods/${podId}/workflows/${workflowName}/runs`;
+  console.log(`[Lemma Direct API] Creating run at: ${createUrl}`);
+  
+  const run = await makeRequest(createUrl, { method: 'POST' });
+  const runId = run.id;
+  console.log(`[Lemma Direct API] Created run: ${runId}`);
+
+  if (!run.active_wait) {
+    throw new Error("Workflow did not open with input form");
+  }
+
+  // 2. Submit inputs
+  const inputs = {
+    source: payload.source || "manual",
+    documents: payload.documents || [
+      {
+        title: payload.file?.name || "Project Analysis Input",
+        content: payload.text || "Project analysis request"
+      }
+    ]
+  };
+
+  console.log(`[Lemma Direct API] Submitting inputs to node: ${run.active_wait.node_id}`);
+  const submitUrl = `${apiUrl}/pods/${podId}/workflows/runs/${runId}/submit-form`;
+  const submitData = JSON.stringify({
+    node_id: run.active_wait.node_id,
+    inputs
+  });
+
+  await makeRequest(submitUrl, { method: 'POST' }, submitData);
+  console.log(`[Lemma Direct API] Input submitted successfully`);
+
+  // 3. Poll for completion
+  const maxAttempts = 30;
+  let attempts = 0;
+  const pollUrl = `${apiUrl}/pods/${podId}/workflows/runs/${runId}`;
+
+  while (attempts < maxAttempts) {
+    console.log(`[Lemma Direct API] Polling attempt ${attempts}`);
+
+    const runState = await makeRequest(pollUrl, { method: 'GET' });
+    console.log(`[Lemma Direct API] Status: ${runState.status}`);
+
+    if (runState.status === 'completed' || runState.status === 'succeeded') {
+      console.log(`[Lemma Direct API] Workflow completed!`);
+      const output = extractOutput(runState);
+      return transformLemmaOutput(output);
+    }
+
+    if (runState.status === 'failed' || runState.status === 'error') {
+      throw new Error(`Workflow failed: ${runState.error || 'Unknown error'}`);
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    attempts++;
+  }
+
+  throw new Error(`Workflow timed out after ${maxAttempts} seconds`);
+}
+/**
+ * Check the status of a specific workflow run (useful for long-running workflows)
+ */
+export async function checkWorkflowStatus(runId: string): Promise<any> {
+  const client = getLemmaClient();
+  
+  try {
+    console.log(`[Lemma Status Check] Checking status for run: ${runId}`);
+    const runState = await client.workflows.runs.get(runId);
+    const isTerminal = isTerminalFlowStatus(runState.status);
+    const normalized = normalizeRunStatus(runState.status);
+    
+    console.log(`[Lemma Status Check] Run ${runId} status: ${normalized}`);
+    
+    if (isTerminal && (normalized === "COMPLETED" || normalized === "SUCCEEDED")) {
+      const output = extractOutput(runState);
+      const transformedOutput = transformLemmaOutput(output);
+      transformedOutput._analysisMode = "lemma";
+      return {
+        status: "completed",
+        result: transformedOutput
+      };
+    } else if (isTerminal) {
+      return {
+        status: "failed",
+        error: runState.error || "Unknown error"
+      };
+    } else {
+      return {
+        status: "running",
+        message: `Workflow is still ${normalized.toLowerCase()}`
+      };
+    }
+  } catch (error: any) {
+    console.error(`[Lemma Status Check] Error checking run ${runId}:`, error.message);
+    throw error;
+  }
+}
+
 export async function runWorkflow(payload: {
   source?: string;
   documents?: Array<{ title: string; content: string }>;
@@ -445,43 +609,87 @@ export async function runWorkflow(payload: {
   const startTime = Date.now();
 
   // 1. Create Run
-  const run = await client.workflows.runs.create(workflowName);
+  let run: any;
+  try {
+    console.log(`[Lemma Workflow Create] Attempting to create workflow run...`);
+    run = await client.workflows.runs.create(workflowName);
+    console.log(`[Lemma Workflow Create] Workflow run created successfully`);
+  } catch (createError: any) {
+    console.error(`[Lemma Workflow Create Error] Failed to create workflow:`, createError.message);
+    console.error(`[Lemma Workflow Create Error] Error details:`, createError);
+    throw new Error(`Failed to create workflow run: ${createError.message}`);
+  }
+  
   const runId = run.id;
   console.log(`[Lemma Workflow Created] Run ID: ${runId}`);
+  console.log(`[Lemma Workflow Created] Run details:`, JSON.stringify(run, null, 2));
 
   const activeWait = run.active_wait;
   if (!activeWait) {
+    console.error(`[Lemma Workflow Error] No active_wait found in run response`);
+    console.error(`[Lemma Workflow Error] Run object:`, JSON.stringify(run, null, 2));
     throw new Error("The Lemma workflow did not open with an input form block.");
   }
+  
+  console.log(`[Lemma Workflow Active Wait] Found active wait:`, JSON.stringify(activeWait, null, 2));
 
   // 2. Submit form inputs
   const inputs: Record<string, any> = {};
+  
+  // Ensure we always have the required fields
   if (payload.source) {
     inputs.source = payload.source;
-  }
-  if (payload.documents) {
-    inputs.documents = payload.documents;
+  } else {
+    inputs.source = "manual"; // Default fallback
   }
   
-  // Legacy support for old format (fallback)
-  if (payload.text) {
+  if (payload.documents && Array.isArray(payload.documents)) {
+    inputs.documents = payload.documents;
+  } else if (payload.text) {
+    // Ensure documents array is always provided
+    inputs.documents = [
+      {
+        title: "Project Analysis Input",
+        content: payload.text
+      }
+    ];
+  } else {
+    // Fallback if no content provided
+    inputs.documents = [
+      {
+        title: "Project Analysis Input", 
+        content: "No content provided"
+      }
+    ];
+  }
+  
+  // Legacy support for old format (should not be needed with new payload format)
+  if (payload.text && !inputs.documents) {
     inputs.text = payload.text;
   }
-  if (payload.file) {
+  if (payload.file && !inputs.documents) {
     inputs.file = payload.file;
   }
 
   console.log(`[Lemma Workflow Submitting] Submitting inputs to node: ${activeWait.node_id}`);
+  console.log(`[Lemma Workflow Submitting] Active wait details:`, JSON.stringify(activeWait, null, 2));
   console.log(`[Lemma Workflow Submitting] Input payload:`, JSON.stringify(inputs, null, 2));
-  await client.workflows.runs.submitForm(runId, {
-    node_id: activeWait.node_id,
-    inputs,
-  });
-  console.log(`[Lemma Workflow Submitted] Input submission completed successfully`);
+  
+  try {
+    await client.workflows.runs.submitForm(runId, {
+      node_id: activeWait.node_id,
+      inputs,
+    });
+    console.log(`[Lemma Workflow Submitted] Input submission completed successfully`);
+  } catch (submitError: any) {
+    console.error(`[Lemma Workflow Submit Error] Failed to submit inputs:`, submitError.message);
+    console.error(`[Lemma Workflow Submit Error] Error details:`, submitError);
+    throw new Error(`Failed to submit workflow inputs: ${submitError.message}`);
+  }
 
   // 3. Poll run until completed (optimized for serverless)
   console.log(`[Lemma Workflow Polling] Polling run status for ID: ${runId}`);
-  const maxAttempts = 45; // 45 seconds timeout
+  const maxAttempts = 90; // Increased to 90 seconds (1.5 minutes) for complex workflows
   let attempts = 0;
   let finalRunState: WorkflowRunResponse | null = null;
 
@@ -506,8 +714,10 @@ export async function runWorkflow(payload: {
         }
       }
 
-      console.log(`[Lemma Workflow Poll ${attempts}] Workflow still running, waiting 1 second...`);
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Poll every 1 second
+      // Use exponential backoff to reduce API calls for long-running workflows
+      const waitTime = attempts < 30 ? 1000 : (attempts < 60 ? 2000 : 3000);
+      console.log(`[Lemma Workflow Poll ${attempts}] Workflow still running, waiting ${waitTime/1000} seconds...`);
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
       attempts++;
 
     } catch (pollError: any) {
