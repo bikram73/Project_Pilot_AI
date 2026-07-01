@@ -1,8 +1,9 @@
 import { ProjectData } from "../types";
+import { runLemmaNativeAnalysis, isLemmaNativeEnvironment } from "./lemma-native";
 
 /**
- * Performs the server-side Project Analysis optimized for serverless deployments.
- * Uses Gemini directly for reliability on Vercel.
+ * Performs the server-side Project Analysis with automatic environment detection.
+ * Uses Lemma-native when running on Lemma platform, otherwise uses backend API.
  */
 export async function runAnalysis(
   payload: {
@@ -12,7 +13,19 @@ export async function runAnalysis(
   onStatusUpdate?: (status: string) => void
 ): Promise<ProjectData> {
   try {
-    console.log("📡 Starting serverless-optimized analysis with Gemini");
+    // Check if we're running in Lemma native environment
+    if (isLemmaNativeEnvironment()) {
+      console.log("🚀 Detected Lemma native environment, using direct integration");
+      console.log("Environment details:", {
+        hostname: window.location.hostname,
+        pathname: window.location.pathname,
+        hasViteVars: !!((window as any).VITE_LEMMA_API_URL)
+      });
+      return await runLemmaNativeAnalysis(payload, onStatusUpdate);
+    }
+
+    // Otherwise use the backend API approach
+    console.log("📡 Using backend API for analysis");
     
     if (onStatusUpdate) {
       console.log("📊 Updating status: Creating Workflow");
@@ -32,7 +45,7 @@ export async function runAnalysis(
     }
     await new Promise((resolve) => setTimeout(resolve, 800));
 
-    console.log("🚀 Making direct analysis request to serverless-optimized endpoint...");
+    console.log("🚀 Making analysis request to backend endpoint...");
 
     const response = await fetch("/api/analyze", {
       method: "POST",
@@ -48,7 +61,7 @@ export async function runAnalysis(
 
     const result = await response.json();
     
-    console.log("✅ Serverless analysis successful:", {
+    console.log("✅ Backend analysis successful:", {
       mode: result._analysisMode,
       tasks: result.tasks?.length || 0,
       risks: result.risks?.length || 0
@@ -67,7 +80,7 @@ export async function runAnalysis(
     return result;
 
   } catch (err: any) {
-    console.error("❌ Serverless analysis failed:", err);
+    console.error("❌ Analysis failed:", err);
     throw err;
   }
 }

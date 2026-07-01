@@ -605,8 +605,74 @@ DEBUG=lemma:*
 
 ## 🚀 Deployment
 
-### Netlify Deployment (Recommended)
-The application is optimized for Netlify with serverless functions:
+### Option 1: Lemma Native Deployment (Recommended for Lemma Users)
+
+If you have Lemma CLI installed and want to deploy directly to the Lemma platform:
+
+#### Prerequisites
+- Lemma CLI installed and authenticated
+- Project working locally
+
+#### Steps:
+```bash
+# 1. Ensure you're logged in to Lemma
+lemma --no-verify-ssl auth login
+
+# 2. Build the project
+npm run build
+
+# 3. Deploy to Lemma platform
+lemma --no-verify-ssl apps deploy projectpilot-ai . --dist-dir dist --yes
+```
+
+#### Result:
+Your app will be deployed to: `https://projectpilot-ai.apps.lemma.work`
+
+#### Features of Lemma Deployment:
+- **Native Lemma Integration**: Direct access to Lemma workflows and chat agents
+- **High Priority Analysis**: Uses Lemma's advanced AI processing capabilities
+- **Pod-Level Security**: App is accessible within your Lemma Pod
+- **Auto-Authentication**: Leverages Lemma platform authentication
+- **No Backend Required**: Static deployment with direct API integration
+
+#### Managing Your Lemma App:
+```bash
+# List your deployed apps
+lemma --no-verify-ssl apps list
+
+# Get app details
+lemma --no-verify-ssl apps get projectpilot-ai
+
+# Redeploy after changes
+npm run build
+lemma --no-verify-ssl apps deploy projectpilot-ai . --dist-dir dist --yes
+```
+
+### Option 2: Netlify Deployment (Serverless Functions)
+The application is optimized for multiple deployment platforms:
+
+### Lemma Deployment (Option 1)
+Native integration with Lemma platform for premium AI analysis:
+
+1. **Authentication & Build:**
+   - Authenticate with Lemma CLI
+   - Build project with `npm run build`
+   - Deploy with `lemma apps deploy`
+
+2. **Environment Setup:**
+   ```
+   VITE_LEMMA_API_URL=https://api.lemma.work
+   VITE_LEMMA_AUTH_URL=https://lemma.work/auth
+   VITE_LEMMA_POD_ID=019f0d4a-33ad-75da-bc5d-43561cba9491
+   ```
+
+3. **Features:**
+   - Native Lemma workflow integration
+   - Direct API access without backend
+   - Pod-level security and authentication
+   - Premium AI analysis capabilities
+
+### Netlify Deployment (Option 2)
 
 1. **Repository Connection:**
    - Connect your GitHub/GitLab repository to Netlify

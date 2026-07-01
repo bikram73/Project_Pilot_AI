@@ -1,17 +1,17 @@
 {
   "projectTitle": "Project Analysis",
-  "projectSummary": "Sarah sent the Development Team an urgent email flagging three back-to-back critical deliverables for Project Phoenix this week: John must complete the API integration by Wednesday, Mary must deliver frontend components ready for testing by Thursday, and Alex must deploy the database migrations by Friday. She also surfaced three standing risks — third-party API instability, an unprepared testing environment, and pending client approval on UI designs — and asked the team to report status at tomorrow's standup.",
+  "projectSummary": "Sarah (PM) sent the development team an urgent email flagging Project Phoenix's three back-to-back critical deliverables this week: John owns the Wednesday API integration, Mary owns the Thursday frontend hand-off into testing, and Alex owns the Friday database migration deploy. She also surfaced three active risks — third-party API instability (that could break John's Wednesday), an unprepared testing environment (that threatens Mary's Thursday), and pending client UI approval (that could force frontend rework) — and asked the team to report green/amber/red status at tomorrow's standup. Source: manual / Project Phoenix Update email thread (Sarah Manager → Development Team).",
   "estimatedCompletion": "TBD",
   "aiConfidenceOverall": 95,
   "blockedTasksCount": 0,
   "dependenciesCount": 0,
   "objectives": [
-    "Ship John's API integration by Wednesday",
-    "Ship Mary's frontend components, ready for testing, by Thursday",
-    "Ship Alex's database migration deployment by Friday",
+    "Ship John's API integration by Wednesday (2026-07-01)",
+    "Hand off Mary's frontend components into testing by Thursday (2026-07-02)",
+    "Deploy Alex's database migrations to production by Friday (2026-07-03)",
     "Get the testing environment operational before Mary's Thursday hand-off",
     "Resolve pending client approval on UI designs to avoid rework",
-    "Surface owner-by-owner status (green/amber/red) at tomorrow's standup"
+    "Surfaces owner-by-owner status (green/amber/red) at tomorrow's standup"
   ],
   "keyDeliverables": [],
   "tasks": [
@@ -50,8 +50,8 @@
     },
     {
       "id": "task-4",
-      "name": "Update project status at tomorrow's standup (per Sarah's email request)",
-      "owner": "Development Team",
+      "name": "Collect status updates from John, Mary, and Alex at tomorrow's standup (per Sarah's email request)",
+      "owner": "Sarah Manager",
       "deadline": "2026-07-02",
       "priority": "Medium",
       "category": "General",
@@ -63,10 +63,10 @@
   "risks": [
     {
       "id": "risk-1",
-      "name": "Third-party API instability could derail John's Wednesday API integration deliverable",
+      "name": "Third-party API instability threatens John's Wednesday API integration deliverable",
       "severity": "High",
-      "description": "Third-party API instability could derail John's Wednesday API integration deliverable",
-      "solution": "Pair John with the third-party API vendor contact today to add retries, timeouts, and a circuit-breaker on the integration; build a stub/mock of the third-party endpoint so work and testing can continue independently of upstream stability; escalate to the vendor for a written ETA covering Wednesday's deliverable so Sarah can descope or reschedule if the upstream is still flaky.",
+      "description": "Third-party API instability threatens John's Wednesday API integration deliverable",
+      "solution": "Pair John with the third-party API vendor contact today to add retries, timeouts, and a circuit-breaker on the integration; build a stub/mock of the third-party endpoint so integration and testing can continue even while the upstream is unstable; escalate to the vendor for a written stability ETA covering Wednesday's deadline so Sarah can descope or reschedule if the upstream is still flaky.",
       "confidence": 90
     },
     {
@@ -74,7 +74,7 @@
       "name": "Testing environment is not ready ahead of Mary's Thursday frontend testing hand-off",
       "severity": "High",
       "description": "Testing environment is not ready ahead of Mary's Thursday frontend testing hand-off",
-      "solution": "Assign a single named owner for the test environment at tomorrow's standup; verify test accounts, seed data, CI pipeline, and access credentials before Mary's Thursday hand-off; in parallel, pre-agree a minimum-testable cut of the frontend Mary's team can validate locally in case the shared environment slips, so the Thursday milestone is not blocked on infrastructure.",
+      "solution": "Assign a single named owner for the testing environment at tomorrow's standup; verify test accounts, seed data, CI pipeline, and access credentials before Mary's Thursday hand-off; in parallel pre-agree a minimum-testable cut of the frontend Mary's team can validate locally if the shared environment slips, so the Thursday milestone is not blocked on infrastructure.",
       "confidence": 90
     },
     {
@@ -90,43 +90,43 @@
       "name": "Three back-to-back critical deliverables (Wed–Fri) leave zero buffer — any single slip cascades through the rest of the week's critical path",
       "severity": "Medium",
       "description": "Three back-to-back critical deliverables (Wed–Fri) leave zero buffer — any single slip cascades through the rest of the week's critical path",
-      "solution": "Use tomorrow's standup as a hard readiness check-in: each named owner (John, Mary, Alex) reports green/amber/red against their deliverable with a same-day escalation path for any amber; pre-define a minimum-deliverable cut per workstream so a slip on one does not push the other two.",
+      "solution": "Use tomorrow's standup as a hard readiness check-in: each named owner (John, Mary, Alex) reports green/amber/red against their deliverable with a same-day escalation path for amber; pre-define a minimum-deliverable cut per workstream so a slip on one does not push the other two.",
       "confidence": 90
     }
   ],
   "recommendations": [
     {
       "id": "rec-1",
-      "title": "Pair each named owner with a concrete mitigation for the relevant standing risk today (John ↔ third-party API hardening, Mary ↔ test-env readiness + UI reworks behind a swappable layer, Alex ↔ migration rollback plan)",
-      "description": "Pair each named owner with a concrete mitigation for the relevant standing risk today (John ↔ third-party API hardening, Mary ↔ test-env readiness + UI reworks behind a swappable layer, Alex ↔ migration rollback plan)",
+      "title": "Note for the persist workflow: this exact Project Phoenix email has already been analyzed and captured in the pod many times today (rows 9f971d7f…, 96e48e49…, fd0f031d…, cb095dc0… in `tasks`; 92b97d26…, a7abf4de…, 9c9b8d17…, 6e971796… in `risks`; most recent canonical summary id 39bbf68d… at 09:14 UTC). Dedupe rather than inserting another near-clone trio of `tasks` and `risks`; if a fresh capture is still wanted, write only a single `summary` update referencing the existing canonical record.",
+      "description": "Note for the persist workflow: this exact Project Phoenix email has already been analyzed and captured in the pod many times today (rows 9f971d7f…, 96e48e49…, fd0f031d…, cb095dc0… in `tasks`; 92b97d26…, a7abf4de…, 9c9b8d17…, 6e971796… in `risks`; most recent canonical summary id 39bbf68d… at 09:14 UTC). Dedupe rather than inserting another near-clone trio of `tasks` and `risks`; if a fresh capture is still wanted, write only a single `summary` update referencing the existing canonical record.",
       "icon": "lightbulb",
       "confidence": 90
     },
     {
       "id": "rec-2",
-      "title": "Make tomorrow's standup a scored readiness review: John, Mary, Alex each give green/amber/red with a same-day escalation path for amber",
-      "description": "Make tomorrow's standup a scored readiness review: John, Mary, Alex each give green/amber/red with a same-day escalation path for amber",
+      "title": "Make tomorrow's standup a scored readiness review: each of John, Mary, Alex gives green/amber/red with a same-day escalation path for amber, and pre-define a minimum-deliverable cut per workstream so a slip on one does not push the other two (the Wed→Thu→Fri sequence has zero buffer).",
+      "description": "Make tomorrow's standup a scored readiness review: each of John, Mary, Alex gives green/amber/red with a same-day escalation path for amber, and pre-define a minimum-deliverable cut per workstream so a slip on one does not push the other two (the Wed→Thu→Fri sequence has zero buffer).",
       "icon": "lightbulb",
       "confidence": 90
     },
     {
       "id": "rec-3",
-      "title": "Assign a single named DRI for the testing environment before EOD today and verify accounts, seed data, CI pipeline, and access credentials before Thursday",
-      "description": "Assign a single named DRI for the testing environment before EOD today and verify accounts, seed data, CI pipeline, and access credentials before Thursday",
+      "title": "Pair each named owner with a concrete mitigation for the relevant standing risk today — John ↔ third-party API hardening (retries, timeouts, circuit-breaker, stub), Mary ↔ test-env readiness + isolated swappable UI layer, Alex ↔ migration rollback plan + green test env gate.",
+      "description": "Pair each named owner with a concrete mitigation for the relevant standing risk today — John ↔ third-party API hardening (retries, timeouts, circuit-breaker, stub), Mary ↔ test-env readiness + isolated swappable UI layer, Alex ↔ migration rollback plan + green test env gate.",
       "icon": "lightbulb",
       "confidence": 90
     },
     {
       "id": "rec-4",
-      "title": "Have Sarah chase the client reviewer for written UI sign-off with a hard response deadline; Mary continues against proposed designs in parallel",
-      "description": "Have Sarah chase the client reviewer for written UI sign-off with a hard response deadline; Mary continues against proposed designs in parallel",
+      "title": "Sarah chases the client reviewer for a written UI sign-off today with a hard response deadline; Mary builds against the proposed designs in parallel and keeps client-specific copy/imagery in a swappable layer so an approved layer can be swapped in without rebuilding finished components.",
+      "description": "Sarah chases the client reviewer for a written UI sign-off today with a hard response deadline; Mary builds against the proposed designs in parallel and keeps client-specific copy/imagery in a swappable layer so an approved layer can be swapped in without rebuilding finished components.",
       "icon": "lightbulb",
       "confidence": 90
     },
     {
       "id": "rec-5",
-      "title": "Pre-define a minimum-deliverable cut per workstream so a slip on one item does not push all three into Friday",
-      "description": "Pre-define a minimum-deliverable cut per workstream so a slip on one item does not push all three into Friday",
+      "title": "Assign a single named DRI for the testing environment before EOD today and verify accounts, seed data, CI pipeline, and access credentials before Mary's Thursday hand-off; in parallel define a minimum-testable cut Mary's team can validate locally if the shared env still slips.",
+      "description": "Assign a single named DRI for the testing environment before EOD today and verify accounts, seed data, CI pipeline, and access credentials before Mary's Thursday hand-off; in parallel define a minimum-testable cut Mary's team can validate locally if the shared env still slips.",
       "icon": "lightbulb",
       "confidence": 90
     }

@@ -11,6 +11,27 @@ import { AlertCircle, X, Sparkles, RefreshCw } from "lucide-react";
 import { runAnalysis } from "./api/projectAnalysis";
 import { parseTextLocally } from "./api/localParser";
 
+// Debug environment on app load
+console.log('🔍 ProjectPilot Environment Debug:', {
+  hostname: window.location.hostname,
+  pathname: window.location.pathname,
+  href: window.location.href,
+  isLemmaDomain: window.location.hostname.includes('lemma.work'),
+  isLemmaApp: window.location.hostname.includes('.apps.lemma.work'),
+  hasViteVars: !!((window as any).VITE_LEMMA_API_URL),
+  viteApiUrl: (window as any).VITE_LEMMA_API_URL,
+  vitePodId: (window as any).VITE_LEMMA_POD_ID,
+  viteFromImportMeta: import.meta.env ? {
+    apiUrl: import.meta.env.VITE_LEMMA_API_URL,
+    podId: import.meta.env.VITE_LEMMA_POD_ID
+  } : 'import.meta.env not available',
+  hasLemmaAuth: !!((window as any).lemmaAuth),
+  hasLemmaToken: !!((window as any).LEMMA_TOKEN),
+  hasLemmaGlobal: !!((window as any).lemma),
+  windowKeys: Object.keys(window).filter(key => key.toLowerCase().includes('lemma')),
+  cookies: document.cookie
+});
+
 function ensureUniqueIds(data: ProjectData): ProjectData {
   if (!data) return data;
   

@@ -100,8 +100,10 @@ Ask me anything about standup workloads, active blockers, or timeline diagnostic
 
   // Check chat agent availability on component mount
   useEffect(() => {
-    getChatMode()
-      .then((mode) => {
+    const initializeChat = async () => {
+      try {
+        const mode = await getChatMode();
+        console.log('🗣️ Chat mode detected:', mode);
         setChatMode(mode);
         setIsChatAvailable(mode !== "offline");
         
@@ -123,21 +125,41 @@ Ask me anything about standup workloads, active blockers, or timeline diagnostic
               timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
             }
           ]);
+        } else if (mode === "lemma") {
+          setChatMessages([
+            {
+              id: "welcome-lemma",
+              sender: "ai",
+              text: `🚀 **Lemma Chat Assistant Active (High Priority Mode)**
+
+I am your **ProjectPilot AI** operational assistant running in premium Lemma mode! 
+
+✅ **Lemma Native Integration**: Direct connection to enterprise-grade AI workflows
+✅ **Project Analysis Complete**: Analyzed your project with **${data.aiConfidenceOverall || 85}%** confidence
+✅ **Ready for Questions**: Ask me anything about tasks, risks, timelines, or recommendations
+
+How can I help optimize your project operations?`,
+              timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+            }
+          ]);
         }
-      })
-      .catch(() => {
+      } catch (error) {
+        console.error('Chat initialization failed:', error);
         setChatMode("offline");
         setIsChatAvailable(false);
         setChatMessages([
           {
-            id: "welcome-unavailable",
+            id: "welcome-error",
             sender: "ai",
-            text: "⚠️ **Chat Assistant is unavailable**: The Lemma conversation session or Chat Agent is not reachable. You can still use the rest of the project dashboard as expected!",
+            text: "⚠️ **Chat initialization failed**: Unable to connect to chat services. The dashboard analysis features are still fully functional!",
             timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
           }
         ]);
-      });
-  }, []);
+      }
+    };
+
+    initializeChat();
+  }, [data.aiConfidenceOverall]);
 
   // Auto-scroll chat to bottom
   useEffect(() => {
@@ -598,7 +620,7 @@ Ask me anything about standup workloads, active blockers, or timeline diagnostic
       <main className="flex-grow p-6 lg:p-10 max-w-7xl mx-auto space-y-8 w-full overflow-y-auto min-w-0">
         
         {/* Analysis Mode Status Banners */}
-        {data._analysisMode === "lemma" && (
+        {(data._analysisMode === "lemma" || data._analysisMode === "lemma-native") && (
           <div className="bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/40 p-4.5 rounded-2xl flex items-start gap-3.5 shadow-sm animate-fadeIn">
             <div className="w-5.5 h-5.5 bg-emerald-600 dark:bg-emerald-400 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0">
               <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
@@ -609,7 +631,10 @@ Ask me anything about standup workloads, active blockers, or timeline diagnostic
                 <span className="text-[9px] bg-emerald-100 dark:bg-emerald-900/50 px-2 py-0.5 rounded-full font-mono">PREMIUM MODE</span>
               </h4>
               <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-1 leading-relaxed">
-                Advanced AI workflow analysis completed successfully! Using enterprise-grade Lemma intelligence for maximum accuracy and detailed project insights.
+                {data._analysisMode === "lemma-native" 
+                  ? "Lemma native integration active! Using direct Lemma platform APIs for intelligent project analysis and task extraction."
+                  : "Advanced AI workflow analysis completed successfully! Using enterprise-grade Lemma intelligence for maximum accuracy and detailed project insights."
+                }
               </p>
             </div>
           </div>
@@ -631,7 +656,7 @@ Ask me anything about standup workloads, active blockers, or timeline diagnostic
           </div>
         )}
 
-        {data._analysisMode !== "lemma" && data._analysisMode !== "gemini" && (
+        {data._analysisMode !== "lemma" && data._analysisMode !== "lemma-native" && data._analysisMode !== "gemini" && (
           <div className="bg-blue-50/70 dark:bg-blue-950/20 border border-blue-200/60 dark:border-blue-900/40 p-4.5 rounded-2xl flex items-start gap-3.5 shadow-sm animate-fadeIn">
             <Sparkles className="w-5.5 h-5.5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
             <div className="flex-grow">
