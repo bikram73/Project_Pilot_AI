@@ -481,32 +481,52 @@ export async function runWorkflow(payload: {
 
   // 3. Poll run until completed (optimized for serverless)
   console.log(`[Lemma Workflow Polling] Polling run status for ID: ${runId}`);
-  const maxAttempts = 60; // Increased to 60 seconds for better reliability
+  const maxAttempts = 45; // 45 seconds timeout
   let attempts = 0;
   let finalRunState: WorkflowRunResponse | null = null;
 
   while (attempts < maxAttempts) {
     console.log(`[Lemma Workflow Poll ${attempts}] Checking status for run ${runId}...`);
-    const pollState = await client.workflows.runs.get(runId);
-    const isTerminal = isTerminalFlowStatus(pollState.status);
-    const normalized = normalizeRunStatus(pollState.status);
+    
+    try {
+      const pollState = await client.workflows.runs.get(runId);
+      const isTerminal = isTerminalFlowStatus(pollState.status);
+      const normalized = normalizeRunStatus(pollState.status);
 
-    console.log(`[Lemma Workflow Poll ${attempts}] Status: ${normalized}, Is Terminal: ${isTerminal}`);
+      console.log(`[Lemma Workflow Poll ${attempts}] Status: ${normalized}, Is Terminal: ${isTerminal}`);
 
-    if (isTerminal) {
-      if (normalized === "COMPLETED" || normalized === "SUCCEEDED") {
-        console.log(`[Lemma Workflow Poll ${attempts}] Workflow completed successfully!`);
-        finalRunState = pollState;
-        break;
-      } else {
-        console.error(`[Lemma Workflow Poll ${attempts}] Workflow failed with status: ${normalized}`);
-        throw new Error(`Workflow run failed with terminal status: ${normalized}. Error: ${pollState.error || "Unknown"}`);
+      if (isTerminal) {
+        if (normalized === "COMPLETED" || normalized === "SUCCEEDED") {
+          console.log(`[Lemma Workflow Poll ${attempts}] Workflow completed successfully!`);
+          finalRunState = pollState;
+          break;
+        } else {
+          console.error(`[Lemma Workflow Poll ${attempts}] Workflow failed with status: ${normalized}`);
+          throw new Error(`Workflow run failed with terminal status: ${normalized}. Error: ${pollState.error || "Unknown"}`);
+        }
       }
-    }
 
-    console.log(`[Lemma Workflow Poll ${attempts}] Workflow still running, waiting 1 second...`);
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Poll every 1 second
-    attempts++;
+      console.log(`[Lemma Workflow Poll ${attempts}] Workflow still running, waiting 1 second...`);
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Poll every 1 second
+      attempts++;
+
+    } catch (pollError: any) {
+      console.error(`[Lemma Workflow Poll ${attempts}] Polling error:`, pollError.message);
+      
+      // If it's an auth error, don't retry endlessly
+      if (pollError.message?.includes('expired') || pollError.message?.includes('unauthorized')) {
+        throw new Error(`Lemma session expired. Please refresh your token. Original error: ${pollError.message}`);
+      }
+      
+      // For other errors, retry a few times then fail
+      if (attempts >= 5) {
+        throw pollError;
+      }
+      
+      console.log(`[Lemma Workflow Poll ${attempts}] Retrying after error...`);
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait longer after error
+      attempts++;
+    }
   }
 
   if (!finalRunState) {

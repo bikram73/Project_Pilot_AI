@@ -54,7 +54,23 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
       return res.json(result);
 
     } catch (lemmaError: any) {
-      console.warn(`[Express API /api/analyze] Lemma workflow unavailable, falling back to Gemini. Error: ${lemmaError.message || lemmaError}`);
+      console.warn(`[Express API /api/analyze] Lemma workflow failed:`, lemmaError.message);
+      
+      // Check if it's a token/auth issue
+      if (lemmaError.message?.includes('expired') || lemmaError.message?.includes('unauthorized') || lemmaError.message?.includes('token')) {
+        console.error(`[Express API /api/analyze] LEMMA TOKEN ISSUE: ${lemmaError.message}`);
+        console.error(`[Express API /api/analyze] Please run: node refresh-lemma-token.cjs`);
+        
+        // For token issues, we should still try to return the error to user
+        return res.status(401).json({
+          error: "Lemma session expired",
+          message: "Please refresh your Lemma token by running: node refresh-lemma-token.cjs",
+          details: lemmaError.message,
+          _analysisMode: "error"
+        });
+      }
+
+      console.warn(`[Express API /api/analyze] Using Gemini fallback due to: ${lemmaError.message}`);
 
       // 2. Fallback: Use Gemini for analysis
       console.log("[Express API /api/analyze] Using Gemini fallback for analysis...");
