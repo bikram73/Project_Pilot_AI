@@ -1,11 +1,189 @@
 // Netlify Function for /api/analyze endpoint
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-
-// Note: Lemma SDK has ESM compatibility issues in Netlify Functions environment
-// For production Lemma integration, consider using fetch API directly or wait for SDK fix
+const https = require('https');
 
 // Global cache for analysis results (in production, use external storage)
 global.cachedAnalysis = global.cachedAnalysis || null;
+
+// Lemma direct API implementation for Netlify (avoiding SDK issues)
+async function runLemmaWorkflowDirect(payload) {
+  const apiUrl = process.env.LEMMA_API_URL || "https://api.lemma.work";
+  const podId = process.env.LEMMA_POD_ID;
+  const sessionToken = process.env.LEMMA_SESSION_TOKEN;
+  const workflowName = process.env.LEMMA_WORKFLOW || "project-analysis-workflow";
+
+  if (!podId || !sessionToken) {
+    throw new Error("LEMMA_POD_ID and LEMMA_SESSION_TOKEN are required for Lemma integration");
+  }
+
+  console.log(`[Netlify Lemma] Starting workflow: ${workflowName}`);
+
+  // Helper function for HTTPS requests
+  const makeRequest = (url, options, postData) => {
+    return new Promise((resolve, reject) => {
+      const urlObj = new URL(url);
+      const requestOptions = {
+        hostname: urlObj.hostname,
+        port: urlObj.port || 443,
+        path: urlObj.pathname,
+        method: options.method || 'GET',
+        headers: {
+          'Authorization': `Bearer ${sessionToken}`,
+          'Content-Type': 'application/json',
+          ...options.headers
+        },
+        rejectUnauthorized: false // For development SSL issues
+      };
+
+      if (postData) {
+        requestOptions.headers['Content-Length'] = Buffer.byteLength(postData);
+      }
+
+      const req = https.request(requestOptions, (res) => {
+        let data = '';
+        res.on('data', (chunk) => data += chunk);
+        res.on('end', () => {
+          try {
+            const result = data ? JSON.parse(data) : {};
+            if (res.statusCode >= 200 && res.statusCode < 300) {
+              resolve(result);
+            } else {
+              reject(new Error(`HTTP ${res.statusCode}: ${data}`));
+            }
+          } catch (parseError) {
+            reject(new Error(`Parse error: ${data}`));
+          }
+        });
+      });
+
+      req.on('error', reject);
+      req.setTimeout(30000, () => reject(new Error('Request timeout')));
+      
+      if (postData) {
+        req.write(postData);
+      }
+      req.end();
+    });
+  };
+
+  // 1. Create workflow run
+  const createUrl = `${apiUrl}/pods/${podId}/workflows/${workflowName}/runs`;
+  const run = await makeRequest(createUrl, { method: 'POST' });
+  const runId = run.id;
+  console.log(`[Netlify Lemma] Created run: ${runId}`);
+
+  if (!run.active_wait) {
+    throw new Error("Workflow did not open with input form");
+  }
+
+  // 2. Submit inputs
+  const inputs = {
+    source: "manual",
+    documents: [
+      {
+        title: payload.file?.name || "Project Analysis Input",
+        content: payload.text || "Project analysis request"
+      }
+    ]
+  };
+
+  const submitUrl = `${apiUrl}/pods/${podId}/workflows/runs/${runId}/submit-form`;
+  const submitData = JSON.stringify({
+    node_id: run.active_wait.node_id,
+    inputs
+  });
+
+  await makeRequest(submitUrl, { method: 'POST' }, submitData);
+  console.log(`[Netlify Lemma] Input submitted`);
+
+  // 3. Poll for completion (shorter timeout for serverless)
+  const maxAttempts = 20; // 20 seconds for Netlify
+  let attempts = 0;
+  const pollUrl = `${apiUrl}/pods/${podId}/workflows/runs/${runId}`;
+
+  while (attempts < maxAttempts) {
+    const runState = await makeRequest(pollUrl, { method: 'GET' });
+    console.log(`[Netlify Lemma] Poll ${attempts}: ${runState.status}`);
+
+    if (runState.status === 'completed' || runState.status === 'succeeded') {
+      console.log(`[Netlify Lemma] Workflow completed!`);
+      return transformLemmaOutput(runState.execution_context || {});
+    }
+
+    if (runState.status === 'failed' || runState.status === 'error') {
+      throw new Error(`Workflow failed: ${runState.error || 'Unknown error'}`);
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    attempts++;
+  }
+
+  throw new Error(`Lemma workflow timed out after ${maxAttempts} seconds`);
+}
+
+function transformLemmaOutput(lemmaData) {
+  if (!lemmaData) return lemmaData;
+
+  const transformed = {
+    projectTitle: "Project Analysis",
+    projectSummary: lemmaData.summary?.projectSummary || "Analysis completed successfully",
+    estimatedCompletion: "TBD",
+    aiConfidenceOverall: 95,
+    blockedTasksCount: 0,
+    dependenciesCount: 0,
+    objectives: lemmaData.summary?.objectives || [],
+    keyDeliverables: [],
+    tasks: (lemmaData.tasks || []).map((task, idx) => ({
+      id: `task-${idx + 1}`,
+      name: task.taskName || task.name || `Task ${idx + 1}`,
+      owner: task.owner || "Unassigned",
+      deadline: task.deadline || "TBD",
+      priority: capitalizeFirst(task.priority) || "Medium",
+      category: "General",
+      status: mapStatus(task.status) || "Todo",
+      sourceEvidence: `Generated from project analysis`,
+      confidence: 95
+    })),
+    risks: (lemmaData.risks || []).map((risk, idx) => ({
+      id: `risk-${idx + 1}`,
+      name: risk.title || risk.name || `Risk ${idx + 1}`,
+      severity: capitalizeFirst(risk.severity) || "Medium",
+      description: risk.title || risk.description || "",
+      solution: risk.mitigation || risk.solution || "Review and assess",
+      confidence: 90
+    })),
+    recommendations: (lemmaData.summary?.recommendations || []).map((rec, idx) => ({
+      id: `rec-${idx + 1}`,
+      title: typeof rec === 'string' ? rec : (rec.title || `Recommendation ${idx + 1}`),
+      description: typeof rec === 'string' ? rec : (rec.description || rec),
+      icon: "lightbulb",
+      confidence: 90
+    })),
+    missingInfoAlerts: [],
+    _analysisMode: "lemma"
+  };
+
+  transformed.blockedTasksCount = transformed.tasks.filter(task => 
+    task.status === "Blocked" || task.status.toLowerCase().includes("blocked")
+  ).length;
+
+  return transformed;
+}
+
+function capitalizeFirst(str) {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+function mapStatus(status) {
+  if (!status) return "Todo";
+  const lowerStatus = status.toLowerCase();
+  if (lowerStatus === "pending") return "Todo";
+  if (lowerStatus === "blocked") return "Blocked";
+  if (lowerStatus === "in progress" || lowerStatus === "running") return "In Progress";
+  if (lowerStatus === "done" || lowerStatus === "completed") return "Done";
+  return "Todo";
+}
 
 // Gemini client setup
 let aiClient = null;
@@ -164,30 +342,56 @@ exports.handler = async (event, context) => {
 
       const { text, file } = JSON.parse(event.body);
 
-      // Note: Using Gemini for Netlify deployment due to lemma-sdk ESM compatibility issues
-      // For full Lemma integration, use the Express server version or direct REST API calls
-      console.log("[Netlify Function] Using Gemini for analysis (Lemma SDK has compatibility issues in serverless)...");
-      
-      const geminiPayload = { text: text || "", file: file || null };
-      const result = await analyzeWithGemini(geminiPayload);
+      try {
+        // Try Lemma first (with direct API approach)
+        console.log("[Netlify Function] Attempting Lemma workflow...");
+        const lemmaPayload = { text: text || "", file: file || null };
+        const result = await runLemmaWorkflowDirect(lemmaPayload);
 
-      // Mark as Gemini analyzed
-      result._analysisMode = "gemini";
-      result._deploymentMode = "netlify";
+        // Mark as Lemma analyzed
+        result._analysisMode = "lemma";
+        result._deploymentMode = "netlify";
 
-      // Cache the result
-      global.cachedAnalysis = result;
+        // Cache the result
+        global.cachedAnalysis = result;
 
-      console.log("[Netlify Function] Gemini analysis completed successfully.");
-      
-      return {
-        statusCode: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-        body: JSON.stringify(result),
-      };
+        console.log("[Netlify Function] Lemma analysis completed successfully.");
+        
+        return {
+          statusCode: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
+          body: JSON.stringify(result),
+        };
+
+      } catch (lemmaError) {
+        console.warn(`[Netlify Function] Lemma failed, using Gemini fallback:`, lemmaError.message);
+
+        // Fallback to Gemini
+        console.log("[Netlify Function] Using Gemini fallback...");
+        const geminiPayload = { text: text || "", file: file || null };
+        const result = await analyzeWithGemini(geminiPayload);
+
+        // Mark as Gemini analyzed
+        result._analysisMode = "gemini";
+        result._deploymentMode = "netlify-fallback";
+
+        // Cache the result
+        global.cachedAnalysis = result;
+
+        console.log("[Netlify Function] Gemini fallback analysis completed successfully.");
+        
+        return {
+          statusCode: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
+          body: JSON.stringify(result),
+        };
+      }
     }
 
     return {
