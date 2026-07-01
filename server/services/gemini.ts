@@ -18,7 +18,7 @@ export async function analyzeWithGemini(payload: {
   file: { name: string; base64: string; mimeType: string } | null;
 }) {
   const ai = getGeminiClient();
-  const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = ai.getGenerativeModel({ model: "gemini-1.5-pro" });
 
   const parts: any[] = [];
 
@@ -123,7 +123,7 @@ export async function chatWithGemini(
   history: any[] = []
 ): Promise<string> {
   const ai = getGeminiClient();
-  const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = ai.getGenerativeModel({ model: "gemini-1.5-pro" });
   const safeProjectData = projectData || {};
 
   const systemInstruction = `You are ProjectPilot AI, a highly professional operational assistant and project management expert.

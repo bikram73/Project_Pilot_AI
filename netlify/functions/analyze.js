@@ -19,7 +19,7 @@ function getGeminiClient() {
 
 async function analyzeWithGemini(payload) {
   const ai = getGeminiClient();
-  const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = ai.getGenerativeModel({ model: "gemini-1.5-pro" });
 
   const parts = [];
 
