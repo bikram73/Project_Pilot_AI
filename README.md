@@ -2,6 +2,8 @@
 
 Transform your unstructured meeting notes, transcripts, requirements documents, and team communications into structured, actionable project dashboards in seconds. Powered by **Lemma Workflow Engine** with intelligent document parsing and real-time analysis, ProjectPilot AI extracts tasks, identifies owners, maps deadlines, flags risks, and provides strategic recommendations automatically.
 
+**🌐 Now deployed on Netlify** with serverless functions for optimal performance and scalability.
+
 ---
 
 ### 🎯 Streamlined Input Interface
@@ -137,15 +139,16 @@ ProjectPilot AI features an elegant **Deep Slate & Vibrant Blue** aesthetic with
 ### 🌐 Frontend
 * **React 19** - Modern hooks, concurrent features, and optimized rendering
 * **TypeScript** - Full type safety with strict compiler settings
-* **Tailwind CSS v4** - Utility-first styling with custom design system
+* **Tailwind CSS v3** - Utility-first styling with PostCSS processing
 * **Framer Motion** - Smooth animations and micro-interactions
 * **Vite** - Lightning-fast development and optimized production builds
 
 ### ⚙️ Backend & Integration
-* **Express.js** - Lightweight API server with CORS and error handling
+* **Netlify Functions** - Serverless API endpoints with auto-scaling and global CDN
+* **Express.js** - Converted to serverless functions for `/api/*` routes
 * **Lemma SDK** - Primary workflow orchestration and chat integration
 * **Google Gemini AI** - Fallback analysis engine and conversational AI
-* **Node.js** - Server-side JavaScript runtime with modern ES modules
+* **Node.js 20+** - Modern server-side runtime with ES modules support
 
 ### 🔧 Development Tools
 * **ESLint + Prettier** - Code quality and consistent formatting
@@ -160,7 +163,13 @@ Organized for scalability and maintainability:
 
 ```
 projectpilot-ai/
-├── 📁 server/                    # Backend services
+├── 📁 netlify/                   # Netlify serverless functions
+│   └── functions/                # API endpoints as serverless functions
+│       ├── analyze.js            # Analysis and polling endpoints
+│       ├── chat.js               # Chat functionality
+│       ├── tasks.js              # Task management
+│       └── health.js             # Service health check
+├── 📁 server/                    # Original Express server (dev only)
 │   ├── index.ts                  # Express server entry point
 │   ├── middleware/               # CORS, error handling
 │   ├── routes/                   # API endpoints (/analyze, /tasks, /risks)
@@ -176,9 +185,12 @@ projectpilot-ai/
 │       ├── Dashboard.tsx         # Main project overview
 │       ├── ProcessingScreen.tsx  # Loading states & progress
 │       └── LandingPage.tsx       # Welcome screen
+├── 📄 netlify.toml               # Netlify deployment configuration
+├── 📄 index-netlify.html         # Production HTML for Netlify
+├── 📄 vite.config.netlify-simple.ts # Netlify-optimized build config
 ├── 📄 package.json               # Dependencies & scripts
 ├── 📄 tsconfig.json              # TypeScript configuration
-├── 📄 vite.config.ts             # Build tool configuration
+├── 📄 vite.config.ts             # Development build configuration
 ├── 📄 .env.example               # Environment variables template
 └── 📄 latest_analysis.json       # Persistent analysis results
 ```
@@ -188,9 +200,10 @@ projectpilot-ai/
 ## 🚀 Installation & Setup
 
 ### 📋 Prerequisites
-- **Node.js** v18+ and **npm** installed
+- **Node.js** v20+ and **npm** v10+ installed
 - **Lemma CLI** for authentication setup
 - **Python/uv** (for Lemma CLI installation)
+- **Netlify Account** (for deployment)
 
 ### 1️⃣ Clone & Install
 ```bash
@@ -221,13 +234,13 @@ Create `.env` file in the root directory:
 LEMMA_API_URL=https://api.lemma.work
 LEMMA_POD_ID=019f0d4a-33ad-75da-bc5d-43561cba9491
 LEMMA_SESSION_TOKEN=<output-from-lemma-auth-print-token>
-LEMMA_PROXY_ALLOWED_ORIGIN=http://localhost:5173
-
-# Server Configuration  
-PORT=4001
+LEMMA_PROXY_ALLOWED_ORIGIN=https://your-netlify-app.netlify.app
 
 # Google Gemini API Configuration (Fallback Engine)
 GEMINI_API_KEY=your_gemini_api_key_here
+
+# Application URL (for production deployment)
+APP_URL=https://your-netlify-app.netlify.app
 
 # Windows Development (if needed)
 NODE_TLS_REJECT_UNAUTHORIZED=0
@@ -241,33 +254,62 @@ NODE_TLS_REJECT_UNAUTHORIZED=0
 
 ### 4️⃣ Development Server
 ```bash
-# Start backend server (port 4001)
-cd server
+# Start local development server (includes backend simulation)
 npm run dev
 
-# Start frontend development server (port 5173)
-npm run dev
+# Visit http://localhost:5173 to access the application
 ```
 
-Visit `http://localhost:5173` to access the application.
+### 5️⃣ Production Build & Deployment
 
-### 5️⃣ Production Build
+#### Local Production Build
 ```bash
-# Build optimized production bundle
-npm run build
+# Build for Netlify deployment
+npm run build:netlify
 
-# Start production server
+# Test production build locally (if needed)
 npm run start
 ```
+
+#### Netlify Deployment
+1. **Connect to Netlify:**
+   - Create account at [netlify.com](https://netlify.com)
+   - Connect your GitHub repository
+   - Choose "Deploy Site"
+
+2. **Configure Build Settings:**
+   ```
+   Build command: npm run build:netlify
+   Publish directory: dist
+   ```
+
+3. **Set Environment Variables** in Netlify dashboard:
+   ```
+   LEMMA_API_URL=https://api.lemma.work
+   LEMMA_POD_ID=019f0d4a-33ad-75da-bc5d-43561cba9491  
+   LEMMA_SESSION_TOKEN=[your-token]
+   GEMINI_API_KEY=[your-gemini-key]
+   APP_URL=https://your-app-name.netlify.app
+   LEMMA_PROXY_ALLOWED_ORIGIN=https://your-app-name.netlify.app
+   NODE_TLS_REJECT_UNAUTHORIZED=0
+   ```
+
+4. **Deploy:** Netlify will automatically build and deploy your site
 
 ---
 
 ## 🔧 Configuration Options
 
+### Netlify Environment Variables
+All environment variables must be configured in the Netlify dashboard:
+1. Go to your site dashboard on Netlify
+2. Navigate to Site Settings > Environment Variables  
+3. Add all the variables listed in the setup section above
+
 ### Windows Development Setup
 For Windows environments, SSL verification may need to be disabled:
 ```env
-# Add to .env for Windows compatibility
+# Add to Netlify environment variables for Windows compatibility
 NODE_TLS_REJECT_UNAUTHORIZED=0
 ```
 
@@ -281,7 +323,7 @@ Lemma session tokens expire periodically. To refresh:
 ```bash
 lemma auth login    # If session expired
 lemma auth print-token    # Get new token
-# Update LEMMA_SESSION_TOKEN in .env
+# Update LEMMA_SESSION_TOKEN in Netlify environment variables
 ```
 
 ---
@@ -312,32 +354,33 @@ lemma auth print-token    # Get new token
 
 ---
 
-## 🧪 Testing Fallback System
+### 🧪 Testing Fallback System
 
 ### Manual Testing
 To test the Gemini fallback system:
 
 ```bash
-# Test with Lemma disabled (simulate service unavailable)
-# Temporarily rename or remove LEMMA_SESSION_TOKEN in .env
+# Test locally with development server
 npm run dev
 
+# Test with invalid Lemma token to trigger fallback
+# Temporarily set LEMMA_SESSION_TOKEN to "invalid" in Netlify environment
 # Run analysis - should automatically use Gemini fallback
 # Check dashboard for "● Powered by Gemini (Fallback)" indicator
 ```
 
-### API Testing
+### API Testing (Local Development)
 ```bash
 # Test Gemini integration directly
 node test-gemini-fallback.js
 
-# Test analysis endpoints
-curl -X POST http://localhost:4001/api/analyze \
+# Test analysis endpoints locally
+curl -X POST http://localhost:5173/.netlify/functions/analyze \
   -H "Content-Type: application/json" \
   -d '{"text":"Test meeting with John completing API by Friday"}'
 
-# Test chat endpoints  
-curl -X POST http://localhost:4001/api/chat \
+# Test chat endpoints locally
+curl -X POST http://localhost:5173/.netlify/functions/chat \
   -H "Content-Type: application/json" \
   -d '{"message":"What are the main tasks?"}'
 ```
@@ -349,9 +392,21 @@ curl -X POST http://localhost:4001/api/chat \
 
 ---
 
-## 🔍 Troubleshooting
+### 🔍 Troubleshooting
 
 ### Common Issues & Solutions
+
+#### Netlify Deployment Issues
+```bash
+# Build fails with Node version error
+# Solution: Ensure Node 20+ is specified in netlify.toml:
+[build.environment]
+  NODE_VERSION = "20"
+
+# Functions not working after deployment
+# Solution: Check Netlify Functions logs in dashboard for errors
+# Verify all environment variables are set correctly
+```
 
 #### Lemma CLI Installation Issues
 ```bash
@@ -364,17 +419,17 @@ uv tool upgrade lemma-cli
 ```
 
 #### Connection Issues
-- **401 Authentication Error:** Refresh Lemma session token
-- **Timeout Issues:** Check network connection and Lemma service status  
-- **CORS Errors:** Verify `LEMMA_PROXY_ALLOWED_ORIGIN` matches frontend URL
+- **401 Authentication Error:** Refresh Lemma session token and update in Netlify environment
+- **Timeout Issues:** Check Netlify Functions execution logs for timeout errors
+- **CORS Errors:** Verify `LEMMA_PROXY_ALLOWED_ORIGIN` matches your Netlify app URL
 
 #### Development Server Issues
-- **Port Conflicts:** Check if ports 4001 (backend) and 5173 (frontend) are available
-- **Module Not Found:** Run `npm install` in both root and server directories
-- **Build Errors:** Ensure TypeScript compiler is up to date
+- **Port Conflicts:** Check if port 5173 (frontend) is available
+- **Module Not Found:** Run `npm install` in project root
+- **Build Errors:** Ensure TypeScript and dependencies are up to date
 
 ### 🛠️ Debug Mode
-Enable verbose logging by setting:
+Enable verbose logging in Netlify Functions by setting:
 ```env
 NODE_ENV=development
 DEBUG=lemma:*
@@ -384,17 +439,38 @@ DEBUG=lemma:*
 
 ## 🚀 Deployment
 
-### Vercel Deployment
-1. Connect repository to Vercel
-2. Set environment variables in Vercel dashboard
-3. Configure build settings:
-   ```json
-   {
-     "buildCommand": "npm run build",
-     "outputDirectory": "dist",
-     "framework": "vite"
-   }
+### Netlify Deployment (Recommended)
+The application is optimized for Netlify with serverless functions:
+
+1. **Repository Connection:**
+   - Connect your GitHub/GitLab repository to Netlify
+   - Select the repository and authorize access
+
+2. **Build Configuration:**
    ```
+   Build command: npm run build:netlify
+   Publish directory: dist
+   Functions directory: netlify/functions
+   ```
+
+3. **Environment Variables Setup:**
+   Set these in Netlify site dashboard > Environment variables:
+   ```
+   LEMMA_API_URL=https://api.lemma.work
+   LEMMA_POD_ID=019f0d4a-33ad-75da-bc5d-43561cba9491
+   LEMMA_SESSION_TOKEN=[from lemma auth print-token]
+   LEMMA_PROXY_ALLOWED_ORIGIN=https://your-app.netlify.app
+   GEMINI_API_KEY=[from Google AI Studio]
+   APP_URL=https://your-app.netlify.app
+   NODE_TLS_REJECT_UNAUTHORIZED=0
+   ```
+
+4. **Domain Configuration:**
+   - Netlify provides a default domain: `your-app.netlify.app`
+   - Update `APP_URL` and `LEMMA_PROXY_ALLOWED_ORIGIN` with this URL
+   - Optionally configure custom domain
+
+### Alternative Deployment Options
 
 ### Docker Deployment
 ```dockerfile

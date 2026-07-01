@@ -21,8 +21,7 @@ export function useWorkflow() {
         payload,
         (newStatus) => {
           setStatus(newStatus);
-        },
-        signal
+        }
       );
       setLoading(false);
       return result;

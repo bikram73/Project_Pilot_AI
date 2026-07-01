@@ -22,9 +22,9 @@ export default defineConfig(() => {
         },
       },
     },
-    // Completely disable CSS processing to avoid any PostCSS issues
+    // Skip CSS processing completely
     css: {
-      postcss: false,
+      postcss: {},
     },
   };
 });
