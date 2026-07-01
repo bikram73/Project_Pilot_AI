@@ -1,24 +1,24 @@
 {
   "projectTitle": "Project Analysis",
-  "projectSummary": "Project Phoenix has three critical deliverables landing Wed/Thu/Fri owned by John (API integration), Mary (frontend components ready for testing), and Alex (database migrations to production). Three risks are already on Sarah's radar — third-party API instability, an unprepared testing environment, and pending client UI approval — any of which could derail at least one of this week's milestones, so the focus this week is execution plus proactive risk removal rather than new scope.",
+  "projectSummary": "A renewable energy research project with three parallel roles (Alice – literature collection, Bob – simulations, Charlie – analysis) culminating in a final paper submission on November 5. The simulation software license expires next month, so the source document explicitly recommends renewing it before any experiments begin; license renewal is therefore the first critical-path action and a precondition for Bob's simulation work and, downstream, Charlie's analysis and the final submission.",
   "estimatedCompletion": "TBD",
   "aiConfidenceOverall": 95,
   "blockedTasksCount": 0,
   "dependenciesCount": 0,
   "objectives": [
-    "John to complete the API integration for Project Phoenix by Wednesday, with vendor escalation and a working fallback against third-party instability.",
-    "Mary to deliver frontend components that are ready for testing by Thursday, against a confirmed test environment and either approved or build-against-proposed UI designs.",
-    "Alex to deploy database migrations to production by Friday, with a rollback plan in case the migration needs to be reversed.",
-    "Sarah to unblock the three flagged risks (API stability, test environment, client UI approval) before they translate into missed deadlines for John, Mary, or Alex."
+    "Collect the underlying literature on renewable energy (Alice)",
+    "Run the supporting simulations (Bob)",
+    "Analyze the simulation / experimental results (Charlie)",
+    "Submit the final research paper by November 5"
   ],
   "keyDeliverables": [],
   "tasks": [
     {
       "id": "task-1",
-      "name": "Complete API integration (Project Phoenix)",
-      "owner": "John",
+      "name": "Collect literature on renewable energy",
+      "owner": "Alice",
       "deadline": "TBD",
-      "priority": "Critical",
+      "priority": "Medium",
       "category": "General",
       "status": "Todo",
       "sourceEvidence": "Generated from project analysis",
@@ -26,10 +26,10 @@
     },
     {
       "id": "task-2",
-      "name": "Deliver frontend components ready for testing (Project Phoenix)",
-      "owner": "Mary",
+      "name": "Perform renewable energy simulations",
+      "owner": "Bob",
       "deadline": "TBD",
-      "priority": "Critical",
+      "priority": "High",
       "category": "General",
       "status": "Todo",
       "sourceEvidence": "Generated from project analysis",
@@ -37,10 +37,32 @@
     },
     {
       "id": "task-3",
-      "name": "Deploy database migrations to production (Project Phoenix)",
-      "owner": "Alex",
+      "name": "Analyze simulation results",
+      "owner": "Charlie",
       "deadline": "TBD",
-      "priority": "Critical",
+      "priority": "Medium",
+      "category": "General",
+      "status": "Todo",
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
+    },
+    {
+      "id": "task-4",
+      "name": "Submit the final research paper",
+      "owner": "Unassigned",
+      "deadline": "2026-11-05",
+      "priority": "High",
+      "category": "General",
+      "status": "Todo",
+      "sourceEvidence": "Generated from project analysis",
+      "confidence": 95
+    },
+    {
+      "id": "task-5",
+      "name": "Renew the simulation software license before starting experiments",
+      "owner": "Unassigned",
+      "deadline": "TBD",
+      "priority": "High",
       "category": "General",
       "status": "Todo",
       "sourceEvidence": "Generated from project analysis",
@@ -50,55 +72,32 @@
   "risks": [
     {
       "id": "risk-1",
-      "name": "Third-party API instability threatens John's Wednesday API integration milestone",
+      "name": "Simulation software license expires next month",
       "severity": "High",
-      "description": "Third-party API instability threatens John's Wednesday API integration milestone",
-      "solution": "Pair John with the third-party API vendor contact to add retries, timeouts, and a circuit breaker on the integration; build a stub/mock of the third-party endpoint so work and testing can continue while the upstream is unstable; escalate to the vendor today for a written ETA on stability so Sarah can decide whether to descope or reschedule Wednesday's deliverable.",
-      "confidence": 90
-    },
-    {
-      "id": "risk-2",
-      "name": "Testing environment is not ready ahead of Mary's Thursday frontend testing hand-off",
-      "severity": "High",
-      "description": "Testing environment is not ready ahead of Mary's Thursday frontend testing hand-off",
-      "solution": "Assign a single owner for the test environment today (Sarah to call it out at tomorrow's standup); verify test accounts, seed data, access credentials, and the CI pipeline are operational before Mary's Thursday hand-off; if the shared environment still slips, pre-agree a minimum-testable cut of the frontend that Mary and her team can validate locally so the milestone is not blocked.",
-      "confidence": 90
-    },
-    {
-      "id": "risk-3",
-      "name": "Client approval on UI designs is still pending and could delay Mary's frontend work",
-      "severity": "Medium",
-      "description": "Client approval on UI designs is still pending and could delay Mary's frontend work",
-      "solution": "Sarah to chase the client reviewer for a written decision today and set a hard response deadline; in parallel, Mary should build against the proposed designs and keep client-specific copy and imagery in a swappable layer so only the approved assets need to be replaced once feedback arrives, rather than reworking components.",
+      "description": "Simulation software license expires next month",
+      "solution": "Renew the simulation software license before any experiments begin (per the source document's recommendation); assign a named owner for the renewal, verify access is restored before Bob starts simulations, and confirm the renewal is in place before the literature → simulation → analysis chain begins so the November 5 paper submission is not at risk.",
       "confidence": 90
     }
   ],
   "recommendations": [
     {
       "id": "rec-1",
-      "title": "Make tomorrow's standup a true readiness review: each of John, Mary, Alex gives a green/yellow/red status, and Sarah confirms owners and ETAs for the test environment and UI approval before standup ends.",
-      "description": "Make tomorrow's standup a true readiness review: each of John, Mary, Alex gives a green/yellow/red status, and Sarah confirms owners and ETAs for the test environment and UI approval before standup ends.",
+      "title": "Renew the simulation software license before starting experiments (verbatim from the source document).",
+      "description": "Renew the simulation software license before starting experiments (verbatim from the source document).",
       "icon": "lightbulb",
       "confidence": 90
     },
     {
       "id": "rec-2",
-      "title": "Convert the email's relative dates (Wednesday / Thursday / Friday) into concrete ISO deadlines on the calendar today so the team has a single source of truth and standups can track slip precisely.",
-      "description": "Convert the email's relative dates (Wednesday / Thursday / Friday) into concrete ISO deadlines on the calendar today so the team has a single source of truth and standups can track slip precisely.",
+      "title": "Sequence the work in the documented order — literature → license renewal → simulations → analysis → final paper — so the November 5 submission date is protected.",
+      "description": "Sequence the work in the documented order — literature → license renewal → simulations → analysis → final paper — so the November 5 submission date is protected.",
       "icon": "lightbulb",
       "confidence": 90
     },
     {
       "id": "rec-3",
-      "title": "Treat the three risks as parallel work, not sequential — assign a named owner per risk and require a daily one-line update in standup until each is cleared or escalated.",
-      "description": "Treat the three risks as parallel work, not sequential — assign a named owner per risk and require a daily one-line update in standup until each is cleared or escalated.",
-      "icon": "lightbulb",
-      "confidence": 90
-    },
-    {
-      "id": "rec-4",
-      "title": "Pre-define a minimum-testable cut and a rollback plan per deliverable now, so if API stability slips or the test environment is still being provisioned, the Thursday/Friday milestones degrade gracefully instead of blocking.",
-      "description": "Pre-define a minimum-testable cut and a rollback plan per deliverable now, so if API stability slips or the test environment is still being provisioned, the Thursday/Friday milestones degrade gracefully instead of blocking.",
+      "title": "Confirm license renewal is complete (and a named owner is recorded) before Bob begins simulations, so the dependency is visible rather than implicit.",
+      "description": "Confirm license renewal is complete (and a named owner is recorded) before Bob begins simulations, so the dependency is visible rather than implicit.",
       "icon": "lightbulb",
       "confidence": 90
     }

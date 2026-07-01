@@ -24,6 +24,11 @@
   status = 200
 
 [[redirects]]
+  from = "/api/test-lemma"
+  to = "/.netlify/functions/test-lemma"
+  status = 200
+
+[[redirects]]
   from = "/api/chat/mode"
   to = "/.netlify/functions/chat"
   status = 200
